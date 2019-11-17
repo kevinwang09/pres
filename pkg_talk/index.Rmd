@@ -1,0 +1,12 @@
+---
+title: "Building R Packages"
+author: "Kevin Wang"
+date: "12 July 2019"
+output: html_document
+---
+
+# Introduction
+
+This website hosts some advices that I hope someone would give me when I start building my own R packages. 
+
+I have listed two talks that I have given on this subjects in the navigation bars above. 

@@ -1,0 +1,37 @@
+---
+title: "SUMS Talk on Cross Platform Omics Prediction"
+author: "Kevin Wang"
+date: "17 Oct 2019"
+output: html_document
+---
+
+
++ You can find slides [here](CPOP_SUMS.pdf). 
+
++ My R-Shiny app can be found [here](https://github.com/kevinwang09/shrink_shiny).
+
+Learn Chinese with Kevin: 
+
+I am feeling a bit old! I have been involved with SUMS since 2014 and now I am finishing up my PhD!
+
+<center>
+遇见的越美好
+
+越感觉自己变老
+
+当完成了童年理想
+
+童年又成了理想
+
+飞越拥抱过我的泥沼
+
+我继续寻找
+
+忽然飘过往事的味道
+
+又将我缠绕
+
+但愿总有阳光照进回忆
+
+青春像花永远开在心里
+</center>

@@ -1,0 +1,6 @@
+Title: From linear regression to precision medicine 
+Abstract: Have you ever solved a system of linear equations and thought "when will I ever use this"? Well, in this day and age, a system of equations can literally be a matter of life and death. But how?
+
+In the age of genomics, statisticians often collaborate with doctors to utilise genetic information to make predictions on a patient's survival outcomes. These predictions can help to guide clinical decisions in selecting the best form of treatment, personalised to the patient. This is an amazing achievement for both statistics and medicine considering a few decades ago, we were only able to use broad population information (e.g. age, gender) to guide clinical decisions.  
+
+In this talk, I will take you through the history of some fundamental statistical tools and explain how they enable the prediction of patient outcomes using genetic information. I will also provide selected examples from my research. The talk is accessible to anyone who has seen a system of linear equations before. 

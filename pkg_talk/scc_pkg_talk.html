@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Sydney Coding Club - Building R Package</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Kevin Wang" />
+    <link href="scc_pkg_talk_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Sydney Coding Club - Building R Package
+## <a href="https://kevinwang09.github.io/pkg_talk/" class="uri">https://kevinwang09.github.io/pkg_talk/</a>
+### <a href="https://twitter.com/KevinWang009">Kevin Wang</a>
+### 2019 May 29
+
+---
+
+
+class: segue
+# Acknowledgement
+
+Credits go to Garth, Dario and Mark for their advice. 
+
+I do not believe in coding via talking, you have to struggle on your own to find a package building pipeline that suits your own style.
+
+---
+
+# Demystifying R package
+
+Loosely speaking, a `R` package is simply a folder with scripts*.
+
+
+On my laptop:
+
+
+```r
+.libPaths() %&gt;% list.files() %&gt;% head()
+```
+
+```
+## [1] "abind"   "acepack" "AER"     "affy"    "affyio"  "AGD"
+```
+
+```r
+.libPaths() %&gt;% paste0("/dplyr") %&gt;% list.files()
+```
+
+```
+##  [1] "data"        "DESCRIPTION" "doc"         "help"        "html"       
+##  [6] "include"     "INDEX"       "libs"        "LICENSE"     "Meta"       
+## [11] "NAMESPACE"   "NEWS.md"     "R"
+```
+
+---
+class: segue-yellow
+
+# Demo 
+
+https://github.com/kevinwang09/hello
+
+### `roxygen2`: managing the folders, namespaces and documentations
+
+### `devtools`: building, checking and installing the package
+
+
+
+---
+
+## Building a package is more than just coding
+
++ Designs, organisations, dependencies, testing, documentations and debugging. 
+
++ Getting a package to install only takes 1 commit. But polishing the package takes much longer:
+  
+    - `SmokyScotch`: 55 commits, 1 branch
+    - `mcvis`: 47 commits, 2 branches
+    - `APES`: 72 commits, 2 branches
+    - `scMerge`: 152 commits, 4 branches
+
+---
+
+## Packages of different standards
+
+  1. A `laptop` package
+    - Write your code using `roxygen2`.
+  1. A `GitHub` package
+    - Make a GitHub repository and push.
+  1. A CRAN package
+    - `devtools::check()`
+  1. A Bioconductor package
+    - `BiocCheck::BiocCheck()`
+
+---
+class: segue-yellow
+
+# Demo 
+
+https://github.com/kevinwang09/hello
+
+### `devtools::build()` is easy 
+### `devtools::check()` is much harder
+---
+
+## Making a CRAN package
+
++ Everyone must pass this check before being put on CRAN
+
+
+.content-box-red[Error: the worst of all.]
+
+.content-box-yellow[Warning: less severe, but also prevents pass.] 
+
+.content-box-green[Note: You should check these.]
+
+&lt;center&gt;
+&lt;img src="figures/ysnp.jpg", width="20%"&gt;
+&lt;/center&gt;
+
+---
+background-image: url(https://github.com/yihui/xaringan/releases/download/v0.0.2/karl-moustache.jpg)
+---
+class: segue-yellow
+
+### Demo: `mcvis` - friday branch
+
+---
+## Making a Bioconductor package
+
++ Compare to CRAN, Bioconductor has a greater focus on documentations, examples and vignettes, reproducibility and coding styles.
+
++ GitHub + Bioc git + virtual machine checker + human reviewer + docker.
+
++ Development must be done with respect to the **development branch** of Bioconductor AND the **unreleased development version** of `R`
+
++ `BiocCheck::BiocCheck()` checks for
+
+    * if maintainer is registered with BioC
+    * coding documentations (e.g. `\dontrun{}` is forbidden)
+    * coding style (e.g. recommended function length is less than 50 lines)
+    
+
+---
+
+## Bioconductor build report: a virtual machine to check your package
+
+&lt;center&gt;
+&lt;img src="figures/bioc_reoprt.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+
+class: segue
+
+## Other useful tools
+
+---
+
+## `testthat`
+
++ A "test" folder is set up with a collection of test scripts. So that you can test if the outputs are genuinely matching with your pre-computed results.
+
+&lt;center&gt;
+&lt;img src="figures/dplyr_test.png", width="80%"&gt;
+&lt;/center&gt;
+
+
+---
+
+## Travis: continuous integration
+
++ `.travis.yml` controls how a virtual machine should be set up to build and check your package.
+
++ Travis build is triggered by commits.
+
++ Travis is publically accountable? https://travis-ci.org/tidyverse/readr.
+
++ But configuring it for more complex projects with multiple environment variables and flags can be time consuming. https://travis-ci.org/SydneyBioX/scMerge/builds.
+
+---
+
+## Pros and cons of Travis
+
+.content-box-green[Travis is a great tool to ensure robustness of your package.]
+
+.content-box-red[But if you have a complex set-up, then be prepared to spend a lot of time on it.]
+
+&lt;br&gt;
+
+.content-box-green[`travis.org` is free for public GitHub repos.]
+
+.content-box-red[`travis.com` is free for private GitHub repos for first 50 triggers.]
+
+&lt;br&gt;
+
+.content-box-green[Travis does not support R for Windows.]
+
+.content-box-red[Travis has some problems with support for R-devel.]
+
+.content-box-yellow[Travis is community maintained] E.g. Travis only updated instructions on BioC 3.9 installation at [my request](https://github.com/travis-ci/travis-build/pull/1710) last week. 
+
+---
+
+
+## Some resources
+
++ Read http://r-pkgs.had.co.nz/
++ StackExchange
++ `tidyverse` packages on GitHub
++ GitHub issues pages
++ Bioconductor style guide 
++ ~~Garth~~ 
++ [Using Travis for R](https://blog.rstudio.com/2016/03/09/r-on-travis-ci/)
++ Praying for divine intervention
++ [Building `blogdown` using `Travis`](https://bookdown.org/yihui/blogdown/travis-github.html) (A massive overkill, but okay...)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+# This file controls the layout of the website. 
+name: "Building R Packages"
+navbar:
+  title: "Building R packages with Kevin"
+  left:
+    - text: "Internal Talk"
+      href: internal_pkg_talk.html
+    - text: "SCC Talk"
+      href: scc_pkg_talk.html
+output_dir: "."
+output:
+  html_document:
+    theme: paper
+    highlight: textmate
