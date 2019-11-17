@@ -1,0 +1,200 @@
+---
+title: "mcvis: multicollinearity visualisation"
+subtitle: "https://kevinwang09.github.io/pres/mcvis_talk"
+author: '[Kevin Y. X. Wang](https://kevinwang09.github.io/)'
+date: "`r paste0('Initiated on 2019 Nov 17, compiled on ', format(Sys.time(), '%Y %b %d'))`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js", "https://platform.twitter.com/widgets.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(mcvis)
+library(corrplot)
+theme_set(theme_classic(18))
+```
+
+
+## Acknowledgement
+
+This is joint work with Chen Lin (Fudan Univeristy) and Prof Samuel Mueller (Sydney University).
+
+
+.pull-left[
+
+<center>
+<img src="figures/chen.jpg", width="40%">
+</center>
+
+<center>
+<img src="figures/fudan.png", width="30%">
+</center>
+
+]
+
+.pull-right[
+
+<center>
+<img src="figures/samuel.jpg", width="40%">
+</center>
+
+<center>
+<img src="figures/usyd.png", width="40%">
+</center>
+
+]
+
+---
+
+## A motivating data
+
+```{r, include = FALSE}
+clean_test_batting_career = readr::read_csv("./clean_test_batting_career.csv")
+
+X = clean_test_batting_career %>% 
+  dplyr::mutate(hs_num = hs %>% stringr::str_extract("\\-*\\d+\\.*\\d*") %>% as.integer()) %>% 
+  dplyr::select_if(is.numeric) %>% 
+  na.omit() %>% 
+  dplyr::transmute(
+    # log_ave = log10(ave),
+    log_sr = log10(strike_rate),
+    log_bf = log10(balls_faced/100),
+    # log_outs = log10(inns - not_out),
+    log_fours = log10(fours + 1L),
+    log_ducks = log10(ducks + 1L),
+    log_sixes = log10(sixes + 1L),
+    log_hs = log10(hs_num),
+    # log_hcentury = log10(half_century + 1L),
+    log_runs = log10(runs)
+    # log_inns = log10(inns + 1L),
+    # log_not_out = log10(not_out + 1L)
+    ) %>% 
+  dplyr::select(log_sr, log_runs, log_bf, everything())
+```
+
+
+
+```{r}
+glimpse(X)
+```
+
++ A cricketer dataset with 810 observations and 8 variables
+
+---
+
+## Interesting relationships in the data
+
++ There is a causual relationship: 
+
+$$\text{strike rate} = \frac{\text{runs}}{\text{balls faced}}, \qquad \text{or equvalently, } \qquad \texttt{log_sr} = \texttt{log_runs} - \texttt{log_bf}.$$
+
+
+```{r, fig.height=5, fig.width=5, echo = FALSE}
+X %>% 
+  ggplot(aes(x = log_sr,
+             y = log_runs - log_bf)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, colour = "red")
+```
+
+
+
+---
+
+## What is multi-collinearity?
++ When two or multiple variables exhibits high enough correlations to cause numerical instability in the estimation of linear regression model estimates.
+
+```{r}
+M1 = lm(log_sr ~ ., data = X)
+broom::tidy(M1)
+# sjPlot::tab_model(M1)
+```
+
+---
+
+## Correlation does not imply multi-collinearity
+
+
+```{r, echo = FALSE, fig.width = 8, fig.height = 8}
+corrplot::corrplot.mixed(
+  cor(X), 
+  upper = "square")
+```
+
+
+---
+class: segue
+
+Existing methodologies
+
+---
+
+## Common measures 
+
++ VIF
++ Eigenvalues
++ Conditional index
+
+---
+
+## Applying VIF
+
+```{r}
+M1 %>% 
+  car::vif() %>% 
+  round(2)
+```
+
+
+--- 
+
+## mcvis method
+
+
+--- 
+class: segue
+
+mcvis results
+
+---
+
+
+## MC-index computation
+
+```{r}
+library(mcvis)
+mcvis_result = mcvis(X)
+```
+
+
+---
+
+## mcvis visualisation
+
+```{r}
+ggplot_mcvis(mcvis_result)
+```
+
+
+--- 
+
+## Extensions
+
+
+---
+
+## Bibliography
