@@ -37,7 +37,7 @@ This is joint work with Chen Lin (Fudan Univeristy) and Prof Samuel Mueller (Syd
 .pull-left[
 
 <center>
-<img src="figures/chen.jpg", width="40%">
+<img src="figures/chen2.jpg", width="40%">
 </center>
 
 
