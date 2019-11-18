@@ -27,7 +27,7 @@ class: center, middle, inverse, title-slide
 # mcvis: multicollinearity visualisation
 ## <a href="https://kevinwang09.github.io/pres/mcvis_talk" class="uri">https://kevinwang09.github.io/pres/mcvis_talk</a>
 ### <a href="https://kevinwang09.github.io/">Kevin Y. X. Wang</a>
-### Initiated on 2019 Nov 17, compiled on 2019 Nov 17
+### Initiated on 2019 Nov 17, compiled on 2019 Nov 18
 
 ---
 
@@ -198,20 +198,39 @@ mcvis_result = mcvis(X)
 
 
 ```r
+round(mcvis_result$MC[7,], 2)
+```
+
+```
+##    log_sr  log_runs    log_bf log_fours log_ducks log_sixes    log_hs 
+##      0.25      0.64      0.11      0.00      0.00      0.00      0.00
+```
+
+```r
 ggplot_mcvis(mcvis_result)
 ```
 
 ![](index_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
 
 
---- 
+---
 
 ## Extensions
+
+
+```r
+ggplot_mcvis(mcvis_result, eig_max = 7)
+```
+
+![](index_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
 
 
 ---
 
 ## Bibliography
+
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

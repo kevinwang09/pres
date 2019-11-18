@@ -185,16 +185,24 @@ mcvis_result = mcvis(X)
 
 ## mcvis visualisation
 
-```{r}
+```{r, fig.width = 12, fig.height = 5}
+round(mcvis_result$MC[7,], 2)
 ggplot_mcvis(mcvis_result)
 ```
 
 
---- 
+---
 
 ## Extensions
+
+```{r}
+ggplot_mcvis(mcvis_result, eig_max = 7)
+```
+
 
 
 ---
 
 ## Bibliography
+
+---
