@@ -27,7 +27,7 @@ class: center, middle, inverse, title-slide
 # mcvis: multicollinearity visualisation
 ## <a href="https://kevinwang09.github.io/pres/mcvis_talk" class="uri">https://kevinwang09.github.io/pres/mcvis_talk</a>
 ### <a href="https://kevinwang09.github.io/">Kevin Y. X. Wang</a>
-### Initiated on 2019 Nov 17, compiled on 2019 Nov 18
+### Initiated on 2019 Nov 17, compiled on 2019 Nov 19
 
 ---
 
@@ -67,7 +67,12 @@ This is joint work with Chen Lin (Fudan Univeristy) and Prof Samuel Mueller (Syd
 
 ---
 
-## A motivating data
+## Cricketers' career batting statistics
+
+
++ Cricket is a bat-and-ball game. 
++ The aim of a batsman is to score as many runs as possible from balls faced.
++ A batsman with more scores of "4" and "6" is considered to be more aggressive.
 
 
 
@@ -85,30 +90,31 @@ glimpse(X)
 ## $ log_runs  &lt;dbl&gt; 2.204120, 1.556303, 2.840106, 2.683947, 2.008600, 3.21…
 ## $ log_bf    &lt;dbl&gt; 0.62736586, 0.17897695, 1.19893187, 0.85003326, 0.2922…
 ## $ log_fours &lt;dbl&gt; 1.278754, 0.301030, 1.832509, 1.832509, 1.041393, 2.15…
-## $ log_ducks &lt;dbl&gt; 0.6989700, 0.4771213, 0.6020600, 0.6020600, 1.0413927,…
 ## $ log_sixes &lt;dbl&gt; 0.0000000, 0.0000000, 0.4771213, 0.8450980, 0.3010300,…
+## $ log_ducks &lt;dbl&gt; 0.6989700, 0.4771213, 0.6020600, 0.6020600, 1.0413927,…
 ## $ log_hs    &lt;dbl&gt; 2.071882, 1.255273, 2.021189, 2.004321, 1.414973, 2.10…
 ```
 
-+ A cricketer dataset with 810 observations and 8 variables
+
 
 ---
 
 ## Interesting relationships in the data
 
-+ There is a causual relationship: 
+There is a causual relationship: 
 
 `$$\text{strike rate} = \frac{\text{runs}}{\text{balls faced}}, \qquad \text{or equvalently, } \qquad \texttt{log_sr} = \texttt{log_runs} - \texttt{log_bf}.$$`
 
-
+.center[
 ![](index_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
-
+]
 
 
 ---
 
 ## What is multi-collinearity?
-+ When two or multiple variables exhibits high enough correlations to cause numerical instability in the estimation of linear regression model estimates.
+
+When one (or more) independent variables in a linear regression model can be linearly predicted from other predictors with a high degree of accuracy.
 
 
 ```r
@@ -124,22 +130,146 @@ broom::tidy(M1)
 ## 2 log_runs     1.00        0.0000208   48020.    0.      
 ## 3 log_bf      -1.00        0.0000120  -83641.    0.      
 ## 4 log_fours   -0.00000824  0.0000136      -0.605 5.45e- 1
-## 5 log_ducks   -0.00000324  0.00000497     -0.651 5.16e- 1
-## 6 log_sixes   -0.0000127   0.00000391     -3.25  1.21e- 3
+## 5 log_sixes   -0.0000127   0.00000391     -3.25  1.21e- 3
+## 6 log_ducks   -0.00000324  0.00000497     -0.651 5.16e- 1
 ## 7 log_hs      -0.000000998 0.00000917     -0.109 9.13e- 1
 ```
 
-```r
-# sjPlot::tab_model(M1)
-```
+
+.footnote[In other words, the columns of `\(X\)` are almost linear dependent.]
 
 ---
 
-## Correlation does not imply multi-collinearity
+## Consequence of multicollinearity
+
+Numerical instability is a typical sympton of multicollinearity. 
+
+&lt;table style="border-collapse:collapse; border:none;"&gt;
+&lt;tr&gt;
+&lt;th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; "&gt;&amp;nbsp;&lt;/th&gt;
+&lt;th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; "&gt;Both&lt;/th&gt;
+&lt;th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; "&gt;Runs only&lt;/th&gt;
+&lt;th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; "&gt;BF only&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  text-align:left; "&gt;Predictors&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  "&gt;Estimates&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  "&gt;std. Error&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  "&gt;p&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  "&gt;Estimates&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  "&gt;std. Error&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  col7"&gt;p&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  col8"&gt;Estimates&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  col9"&gt;std. Error&lt;/td&gt;
+&lt;td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  0"&gt;p&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;(Intercept)&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;1.54&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.04&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;0.95&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;0.02&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;log_runs&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;1.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.29&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.04&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;log_bf&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-1.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;-0.57&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;0.01&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;log_fours&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.545&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.24&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.04&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;0.49&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;0.02&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;log_sixes&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;0.001&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.12&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.01&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;0.06&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;0.01&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;log_ducks&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.516&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.04&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.01&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;strong&gt;0.012&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;0.03&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;0.01&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;strong&gt;0.002&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;log_hs&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;-0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.913&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.21&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.03&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col7"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col8"&gt;0.20&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  col9"&gt;0.01&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  0"&gt;&lt;strong&gt;&amp;lt;0.001&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;/table&gt;
 
 
-![](index_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+---
 
+## High correlation = high multicollinearity?
+
+
+
+.pull-left[
+![](index_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+]
+
+
+.pull-right[
++ The causal variables are not the most highly correlated.
++ Identifying high correlation does not always identify high multicollinearity.
+
+.blockquote[
+Diagnosing multicollinearity requires specialised statistics.
+]
+]
 
 ---
 class: segue
@@ -150,9 +280,94 @@ Existing methodologies
 
 ## Common measures 
 
-+ VIF
-+ Eigenvalues
-+ Conditional index
+1. Variance inflation factors (VIFs) was introduced in Marquaridt (1970): 
+
+`$$VIF_j = \frac{1}{1 - R^2_j}, \qquad j = 1, \dots, p,$$`
+where `\(R^2_j\)` is the coefficient of determination when the `\(\boldsymbol{x}_j\)` independent variable is treated as a response variable against the remaining `\(p-1\)` independent variables. 
+
+A larger value of `\(VIF_j\)` implies greater the cause of multicollinearity by the variable `\(\boldsymbol{x}_j\)`.
+
+2. Eigenvalues of `\(X^\top X\)` (the "uncentered covariance matrix"), `\(\lambda_{1}\geq\lambda_{2}\geq{\ldots}\geq{\lambda_{p}}\geq 0\)`. A smaller value of `\(\lambda_{p}\)` suggests there may exist an approximate linear relationship between one or more subsets of variables *, (Stewart 1987).
+
+.footnote[Linear dependence means determinant is 0, which means the product of all eigenvalues is 0.]
+
+
+---
+
+## Relationships between the two measures
+
+Suppose that `\(X\)` is standardised to have mean 0 and variance 1, and decompose `\((X^\top X)^{-1}\)` into `\(G\operatorname{diag}(1/\lambda_{1},\dots,1/\lambda_{p}){G^\top }\)`, then:
+
+.center[
+`\(\left(\begin{array}{ccc} VIF_1 \\\vdots \\VIF_p \end{array}\right)=\left(\begin{array}{ccc}g_{11}^2 &amp; \cdots &amp; g_{1p}^2 \\ \vdots &amp; \ddots &amp; \vdots \\ g_{p1}^2 &amp; \cdots &amp; g_{pp}^2 \end{array} \right) \left(\begin{array}{ccc} \tau_{1} \\ \vdots \\ \tau_{p} \end{array} \right)\)`,
+]
+
+where `\(\tau_{j}=1/\lambda_{j}, \quad j=1,\ldots,p\)`. 
+
+
+This relationship tells us how these diagnostic measures are related, but does **not** tell us about which variable `\(\boldsymbol{x}_j\)` causes MC.
+
+
+---
+
+## Identifying the MC-causing variable 
+
++ The previous relationship tells us that the surrogate measure of MC, `\(\tau_p\)` is linearly related to the VIF's. 
++ But each VIF is related to each original variable. 
+
+.blockquote[
+By understanding the linearity between `\(\tau_p\)` and each of the VIF's (simple), we can get a better diagnosis of which variables are causing MC (complex).
+]
+
+---
+class: segue
+
+mcvis method
+---
+
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.001.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.002.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.003.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.004.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.005.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.006.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.007.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+&lt;center&gt;
+&lt;img src="figures/mcvis_figures/mcvis_figures.008.png", width="100%"&gt;
+&lt;/center&gt;
+
+---
+class: segue
+
+Results
 
 ---
 
@@ -166,68 +381,79 @@ M1 %&gt;%
 ```
 
 ```
-##  log_runs    log_bf log_fours log_ducks log_sixes    log_hs 
-##    143.49     38.75     57.86      2.10      2.92      9.52
+##  log_runs    log_bf log_fours log_sixes log_ducks    log_hs 
+##    143.49     38.75     57.86      2.92      2.10      9.52
 ```
 
-
---- 
-
-## mcvis method
+The top three variables for causing multicollinearity are: 
 
 
---- 
-class: segue
 
-mcvis results
++ `log_runs` ✅
++ `log_fours` ❌
++ `log_bf` ✅
 
 ---
-
 
 ## MC-index computation
 
 
 ```r
 library(mcvis)
+set.seed(135)
 mcvis_result = mcvis(X)
+round(mcvis_result$MC[ncol(X),], 2)
 ```
 
+```
+##    log_sr  log_runs    log_bf log_fours log_sixes log_ducks    log_hs 
+##      0.25      0.64      0.11      0.00      0.00      0.00      0.00
+```
+
++ `log_runs` ✅
++ `log_sr` ✅
++ `log_bf` ✅
 
 ---
 
 ## mcvis visualisation
 
-
-```r
-round(mcvis_result$MC[7,], 2)
-```
-
-```
-##    log_sr  log_runs    log_bf log_fours log_ducks log_sixes    log_hs 
-##      0.25      0.64      0.11      0.00      0.00      0.00      0.00
-```
+.center[
 
 ```r
 ggplot_mcvis(mcvis_result)
 ```
 
-![](index_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
-
+![](index_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+]
 
 ---
 
 ## Extensions
 
+.center[
 
 ```r
 ggplot_mcvis(mcvis_result, eig_max = 7)
 ```
 
-![](index_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
-
-
+![](index_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+]
 
 ---
+
+## Final remarks
+
++ mcvis provides a new MC-index and a visualisation of multicollinearity in linear regression.
++ mcvis builds on top of classical statistics under a resampling framework and uncovers new sources of collinearity.
++ Learn more from:
+
+  - R package (GitHub): [leaffur/mcvis](https://github.com/leaffur/mcvis)
+  - Python package (GitHub): [kevinwang09/mcvispy](https://github.com/kevinwang09/mcvispy)
+  - Email: [samuel.mueller@sydney.edu.au](mailto:samuel.mueller@sydney.edu.au)
+	- Twitter: [@KevinWang009](https://twitter.com/KevinWang009) and [@SamuelMuller74](https://twitter.com/SamuelMuller74)
+---
+
 
 ## Bibliography
 
