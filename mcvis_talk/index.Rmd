@@ -277,17 +277,6 @@ class: segue
 
 Results
 
----
-
-## Applying VIF
-
-```{r}
-M1 %>% 
-  car::vif() %>% 
-  round(2)
-```
-
-The top three variables for causing multicollinearity are: 
 
 ```{r, include = FALSE, eval = FALSE}
 keywords <- emo::ji_keyword
@@ -302,6 +291,19 @@ emo::ji("white_check_mark")
 
 
 ```
+
+
+---
+
+## Applying VIF
+
+```{r}
+M1 %>% 
+  car::vif() %>% 
+  round(2)
+```
+
+The top three variables for causing multicollinearity are: 
 
 + `log_runs` `r emo::ji("white_check_mark")`
 + `log_fours` `r emo::ji("x")`
