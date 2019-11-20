@@ -355,7 +355,7 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 ## Applying VIF 2 (DELETE)
 
 ```{r}
-M4 = lm(log_hs ~ . -log_outs, data = X)
+M4 = lm(log_hs ~ . -log_outs-log_runs, data = X)
 M5 = lm(log_hs ~ . -log_runs, data = X)
 
 

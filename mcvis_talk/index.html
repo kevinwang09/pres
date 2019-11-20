@@ -472,7 +472,7 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 
 
 ```r
-M4 = lm(log_hs ~ . -log_outs, data = X)
+M4 = lm(log_hs ~ . -log_outs-log_runs, data = X)
 M5 = lm(log_hs ~ . -log_runs, data = X)
 
 
@@ -499,8 +499,8 @@ list_M %&gt;%
 ##     12.44     32.10     58.52      2.61      3.98      2.79 
 ## 
 ## [[4]]
-##  log_runs   log_ave log_fours log_sixes log_ducks   log_100 
-##     67.58      8.32     58.50      2.61      3.98      2.79 
+##   log_ave log_fours log_sixes log_ducks   log_100 
+##      6.77     12.00      2.60      3.44      2.76 
 ## 
 ## [[5]]
 ##   log_ave  log_outs log_fours log_sixes log_ducks   log_100 
