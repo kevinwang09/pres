@@ -78,7 +78,7 @@ clean_test_batting_career = readr::read_csv("./clean_test_batting_career.csv")
 
 X = clean_test_batting_career %>% 
   dplyr::mutate(hs_num = hs %>% stringr::str_extract("\\-*\\d+\\.*\\d*") %>% as.integer()) %>% 
-  dplyr::select_if(is.numeric) %>% 
+  # dplyr::select_if(is.numeric) %>% 
   # dplyr::filter() %>% 
   na.omit() %>%
   dplyr::transmute(
@@ -88,11 +88,25 @@ X = clean_test_batting_career %>%
     log_sixes = log10(sixes + 1L),
     log_ducks = log10(ducks + 1L),
     log_hs = log10(hs_num),
-    log_runs = log10(runs),
+    log_runs = log10(runs) + rnorm(810, 0, 0.01),
     log_100 = log10(century + 1L)
     ) %>% 
-  dplyr::select(log_runs, log_ave, log_outs, everything())
+  dplyr::select(log_runs, log_ave, log_outs, everything()) %>% 
+  dplyr::mutate_all(signif, 2)
 ```
+
+
+```{r, include = FALSE}
+Xmat = X %>% 
+  as.data.frame() %>% 
+  as.matrix()
+```
+
+```{r}
+eigen = svd(t(Xmat) %*% Xmat)
+round(eigen$d, 3)
+```
+
 
 
 
@@ -129,7 +143,7 @@ MC occurs when columns of $X$ are almost linear dependent.
 That is, if any column of $X$ can be expressed as a linear combination of other columns. 
 
 ```{r}
-M1 = lm(log_hs ~ ., data = X)
+M1 = lm(log_100 ~ ., data = X)
 broom::tidy(M1)
 ```
 
@@ -142,8 +156,8 @@ broom::tidy(M1)
 Numerical instability is a typical sympton of MC. 
 
 ```{r, echo = FALSE}
-M2 = lm(log_hs ~ . -log_ave - log_outs - log_runs, data = X)
-M3 = lm(log_hs ~ . -log_runs, data = X)
+M2 = lm(log_100 ~ . -log_runs, data = X)
+M3 = lm(log_100 ~ . -log_ave, data = X)
 
 sjPlot::tab_model(M1, M2, M3,
                   # show.intercept = FALSE, 
@@ -151,7 +165,7 @@ sjPlot::tab_model(M1, M2, M3,
                   show.se = TRUE, 
                   show.r2 = FALSE, 
                   show.obs = FALSE,
-                  dv.labels = c("Include all", "Remove all", "Remove log_runs"))
+                  dv.labels = c("Include all", "Remove log_runs", "Remove log_ave"))
 ```
 
 
@@ -281,23 +295,20 @@ Results
 
 
 ```{r, include = FALSE, eval = FALSE}
-keywords <- emo::ji_keyword
-keywords <- keywords[lengths(keywords) > 1]
-emojis <- purrr::map_chr(keywords, function(x) paste0(emo::ji_name[x], collapse = ""))
-cat(paste(names(emojis), ": ", emojis, collapse = "\n"))
-
-emo::ji_find("mark")
-emo::ji("x")
-emo::ji("white_check_mark")
-
-
-
+# keywords <- emo::ji_keyword
+# keywords <- keywords[lengths(keywords) > 1]
+# emojis <- purrr::map_chr(keywords, function(x) paste0(emo::ji_name[x], collapse = ""))
+# cat(paste(names(emojis), ": ", emojis, collapse = "\n"))
+# 
+# emo::ji_find("mark")
+# emo::ji("x")
+# emo::ji("white_check_mark")
 ```
 
 
 ---
 
-## Applying VIF
+## Applying VIF and eigenvalues
 
 ```{r}
 M1 %>% 
@@ -307,11 +318,10 @@ M1 %>%
 
 The top three variables for causing multicollinearity are: 
 
-+ `log_runs` `r emo::ji("white_check_mark")`
-+ `log_outs` `r emo::ji("white_check_mark")`
-+ `log_ave` `r emo::ji("white_check_mark")`
-+ `log_fours` `r emo::ji("x")`
-
+`r emo::ji("white_check_mark")` `log_runs`
+`r emo::ji("white_check_mark")` `log_outs`
+`r emo::ji("x")` `log_fours` 
+`r emo::ji("white_check_mark")` `log_ave` 
 
 ---
 
@@ -324,9 +334,9 @@ mcvis_result = mcvis(X[,-7])
 round(mcvis_result$MC[ncol(X)-1,], 2)
 ```
 
-+ `log_runs` `r emo::ji("white_check_mark")`
-+ `log_outs` `r emo::ji("white_check_mark")`
-+ `log_ave` `r emo::ji("white_check_mark")`
+`r emo::ji("white_check_mark")` `log_runs`
+`r emo::ji("white_check_mark")` `log_outs`
+`r emo::ji("white_check_mark")` `log_ave` 
 
 
 ---
