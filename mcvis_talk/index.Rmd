@@ -1,8 +1,8 @@
 ---
 title: "mcvis: multicollinearity visualisation"
 subtitle: "https://kevinwang09.github.io/pres/mcvis_talk"
-author: '[Kevin Y. X. Wang](https://kevinwang09.github.io/)'
-date: "`r paste0('Initiated on 2019 Nov 17, compiled on ', format(Sys.time(), '%Y %b %d'))`"
+author: "[Kevin Y. X. Wang](https://kevinwang09.github.io/) `r icon::fa('twitter')` KevinWang009"
+date: "5th December 2019, Adelaide, 'Straya"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -28,6 +28,8 @@ library(corrplot)
 library(car)
 library(emo)
 library(sjPlot)
+library(ggcorrplot)
+library(icon)
 theme_set(theme_classic(18))
 ```
 
@@ -71,15 +73,18 @@ This is joint work with Chen Lin (Fudan Univeristy) and Prof Samuel Mueller (Syd
 
 
 + Cricket is a bat-and-ball game. 
-+ The aim of a batsman is to score as many **runs** as possible bfore getting **out**.
++ The aim of a batsman is to score as many **runs** as possible before getting **out**.
 
 ```{r, include = FALSE}
 clean_test_batting_career = readr::read_csv("./clean_test_batting_career.csv")
 
+set.seed(10)
+
 X = clean_test_batting_career %>% 
   dplyr::mutate(hs_num = hs %>% stringr::str_extract("\\-*\\d+\\.*\\d*") %>% as.integer()) %>% 
   # dplyr::select_if(is.numeric) %>% 
-  # dplyr::filter() %>% 
+  # dplyr::filter(career_end >= 2010) %>%
+  # dplyr::sample_n(size = 50) %>% 
   na.omit() %>%
   dplyr::transmute(
     log_ave = log10(ave),
@@ -88,27 +93,11 @@ X = clean_test_batting_career %>%
     log_sixes = log10(sixes + 1L),
     log_ducks = log10(ducks + 1L),
     log_hs = log10(hs_num),
-    log_runs = log10(runs) + rnorm(810, 0, 0.01),
+    log_runs = log10(runs),
     log_100 = log10(century + 1L)
     ) %>% 
-  dplyr::select(log_runs, log_ave, log_outs, everything()) %>% 
-  dplyr::mutate_all(signif, 2)
+  dplyr::select(log_runs, log_ave, log_outs, everything())
 ```
-
-
-```{r, include = FALSE}
-Xmat = X %>% 
-  as.data.frame() %>% 
-  as.matrix()
-```
-
-```{r}
-eigen = svd(t(Xmat) %*% Xmat)
-round(eigen$d, 3)
-```
-
-
-
 
 ```{r}
 glimpse(X)
@@ -122,7 +111,11 @@ glimpse(X)
 
 There is a causual relationship: 
 
-$$\text{batting ave} = \frac{\text{runs}}{\text{no. of outs}}, \qquad \text{or equvalently, } \qquad \texttt{log_runs} = \texttt{log_ave} + \texttt{log_outs}.$$
+$$\text{batting ave} = \frac{\text{runs}}{\text{no. of outs}}, \qquad \text{or equivalently, } \qquad \texttt{log_runs} = \texttt{log_ave} + \texttt{log_outs}.$$
+
+
+<br>
+
 
 .center[
 ```{r, fig.height=5, fig.width=5, echo = FALSE}
@@ -139,8 +132,7 @@ X %>%
 
 ## What is multi-collinearity (MC)?
 
-MC occurs when columns of $X$ are almost linear dependent. 
-That is, if any column of $X$ can be expressed as a linear combination of other columns. 
+MC occurs when columns of $X$ are linear dependent (exactly or approximately). 
 
 ```{r}
 M1 = lm(log_100 ~ ., data = X)
@@ -153,7 +145,8 @@ broom::tidy(M1)
 
 ## Consequence of multi-collinearity
 
-Numerical instability is a typical sympton of MC. 
++ Numerical instability is a typical sympton of MC. 
+
 
 ```{r, echo = FALSE}
 M2 = lm(log_100 ~ . -log_runs, data = X)
@@ -169,6 +162,14 @@ sjPlot::tab_model(M1, M2, M3,
 ```
 
 
++ We will proceed with rounding all variables to 2 significant figures. 
+
+```{r, include = FALSE}
+X = X %>% 
+  dplyr::mutate_all(signif, 3)
+```
+
+
 ---
 
 ## High correlation $\neq$ multicollinearity
@@ -176,18 +177,26 @@ sjPlot::tab_model(M1, M2, M3,
 
 
 .pull-left[
-```{r, echo = FALSE, fig.width = 8, fig.height = 8}
-corrplot::corrplot.mixed(
-  cor(X), 
-  upper = "square")
+```{r, echo = FALSE, fig.width = 9, fig.height = 9}
+ggcorrplot(cor(X), 
+          type = "upper",
+           outline.col = "white",
+          lab = TRUE, 
+          lab_size = 8, 
+          tl.cex = 20)
 ```
 ]
 
 
+
+<br>
+
+<br>
+
 .pull-right[
 + By definition, it is the linear combination of variables that causes MC.
 + The causal variables are not the most highly correlated.
-+ Identifying high correlation does not always identify sources of MC.
++ Thus, identifying high correlation does not always identify sources of MC.
 
 .blockquote[
 Diagnosis of multicollinearity requires specialised statistics.
@@ -197,39 +206,66 @@ Diagnosis of multicollinearity requires specialised statistics.
 ---
 class: segue
 
-Existing methodologies
+# Existing methodologies
 
 ---
 
-## Common measures 
+## 1. Variance inflation factors (VIFs)
 
-
-1. Variance inflation factors (VIFs) was introduced in Marquaridt (1970): 
+Introduced in Marquaridt (1970): 
 
 $$VIF_j = \frac{1}{1 - R^2_j}, \qquad j = 1, \dots, p,$$
 where $R^2_j$ is the coefficient of determination when the $\boldsymbol{x}_j$ independent variable is treated as a response variable against the remaining $p-1$ independent variables. 
 
-A **larger** value of $VIF_j$ implies $\boldsymbol{x}_j$ can be highly predicted by other variables, and thus implies higher cause of MC by that variable. 
-
+A **larger** value of $VIF_j$ implies $\boldsymbol{x}_j$ can be highly predicted by other variables, and thus implies higher cause of MC by that variable.
 
 --
 
+```{r}
+M1 = lm(log_100 ~ ., data = X)
+M1 %>% car::vif() %>% round(2)
+```
 
-2. Eigenvalues of $X^\top X$ (the "uncentered covariance matrix"), $\lambda_{1}\geq\lambda_{2}\geq{\ldots}\geq{\lambda_{p}}\geq 0$. 
++ Using a threshold of 5 endorsed by Sheather (2009), 5 MC-causing variables are identified.
 
-A **smaller** value of $\lambda_{p}$ produces a matrix determinant closer to 0, which implies linear dependence and thus MC (Stewart 1987).  
+<!-- The top four variables for causing multicollinearity are:  -->
+
+<!-- `r emo::ji("white_check_mark")` `log_runs` -->
+<!-- `r emo::ji("white_check_mark")` `log_outs` -->
+<!-- `r emo::ji("x")` `log_fours`  -->
+<!-- `r emo::ji("white_check_mark")` `log_ave`  -->
+
+
+---
+
+## 2.Eigenvalues of $X^\top X$ 
+
+Eigenvalues of the "uncentered covariance matrix" $\lambda_{1}\geq\lambda_{2}\geq{\ldots}\geq{\lambda_{p}}\geq 0$ offers a more linear algebra interpretation of MC. 
+
+A **smaller** value of $\lambda_{p}$ produces a matrix determinant closer to 0, which implies linear dependence in $X$ and thus MC (Stewart 1987).  
+
+```{r}
+Xmat = X %>% as.data.frame() %>% as.matrix()
+eigen = svd(t(Xmat) %*% Xmat)
+round(eigen$d, 3)
+```
+
++ Note that this only implicates the existence of MC, not which variable causes MC. 
+
 
 ---
 
 ## Relationships between the two measures
 
-Suppose that $X$ is standardised to have mean 0 and variance 1, and decompose $(X^\top X)^{-1}$ into $G\operatorname{diag}(1/\lambda_{1},\dots,1/\lambda_{p}){G^\top }$, then:
+Suppose that $X$ is standardised to have mean 0 and variance 1, and we decompose $(X^\top X)^{-1}$ into $G\operatorname{diag}(1/\lambda_{1},\dots,1/\lambda_{p}){G^\top }$, then:
 
 .center[
 $\left(\begin{array}{ccc} VIF_1 \\\vdots \\VIF_p \end{array}\right)=\left(\begin{array}{ccc}g_{11}^2 & \cdots & g_{1p}^2 \\ \vdots & \ddots & \vdots \\ g_{p1}^2 & \cdots & g_{pp}^2 \end{array} \right) \left(\begin{array}{ccc} \tau_{1} \\ \vdots \\ \tau_{p} \end{array} \right)$,
 ]
 
-where $\tau_{j}=1/\lambda_{j}, \quad j=1,\ldots,p$. So that a larger $\tau_p$ value implies great MC.  
+where $\tau_{j}=1/\lambda_{j}, \quad j=1,\ldots,p$. 
+
+So that a larger $\tau_p$ value implies great MC.  
 
 --
 
@@ -240,13 +276,13 @@ where $\tau_{j}=1/\lambda_{j}, \quad j=1,\ldots,p$. So that a larger $\tau_p$ va
 --
 
 .blockquote[
-By understanding the linearity between $\tau_p$ and each VIFs (which is an linear regression problem in itself), we can get a better diagnosis of which variables are causing MC (complex).
+Exploit the linearity between $\tau_p$ and each VIFs (easier), to diagnose MC-causing variables (complex).
 ]
 
 ---
 class: segue
 
-mcvis method
+# mcvis
 ---
 
 <center>
@@ -291,7 +327,7 @@ mcvis method
 ---
 class: segue
 
-Results
+# Results
 
 
 ```{r, include = FALSE, eval = FALSE}
@@ -305,39 +341,17 @@ Results
 # emo::ji("white_check_mark")
 ```
 
-
----
-
-## Applying VIF and eigenvalues
-
-```{r}
-M1 %>% 
-  car::vif() %>% 
-  round(2)
-```
-
-The top three variables for causing multicollinearity are: 
-
-`r emo::ji("white_check_mark")` `log_runs`
-`r emo::ji("white_check_mark")` `log_outs`
-`r emo::ji("x")` `log_fours` 
-`r emo::ji("white_check_mark")` `log_ave` 
-
 ---
 
 ## MC-index computation
 
 ```{r}
 library(mcvis)
-set.seed(135)
-mcvis_result = mcvis(X[,-7])
-round(mcvis_result$MC[ncol(X)-1,], 2)
+set.seed(13)
+p = ncol(X)
+mcvis_result = mcvis(X[,-p])
+round(mcvis_result$MC[p-1,], 2)
 ```
-
-`r emo::ji("white_check_mark")` `log_runs`
-`r emo::ji("white_check_mark")` `log_outs`
-`r emo::ji("white_check_mark")` `log_ave` 
-
 
 ---
 
@@ -351,7 +365,7 @@ ggplot_mcvis(mcvis_result)
 
 ---
 
-## Extensions
+## Extensions: multiple $\tau$'s
 
 .center[
 ```{r, fig.width = 10, fig.height = 5}
@@ -360,46 +374,47 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 ]
 
 ---
+## Extensions: Shiny app
 
-
-## Applying VIF 2 (DELETE)
-
-```{r}
-M4 = lm(log_hs ~ . -log_outs-log_runs, data = X)
-M5 = lm(log_hs ~ . -log_runs, data = X)
-
-
-list_M = list(M1, M2, M3, M4, M5)
-
-list_M %>% 
-  purrr::map(car::vif) %>% 
-  purrr::map(round, 2)
-```
-
-The top three variables for causing multicollinearity are: 
-
-+ `log_runs` `r emo::ji("white_check_mark")`
-+ `log_outs` `r emo::ji("white_check_mark")`
-+ `log_ave` `r emo::ji("white_check_mark")`
-+ `log_fours` `r emo::ji("x")`
-
-
+<center>
+<img src="figures/shiny.png", width="60%">
+</center>
 
 ---
+
+
+<!-- ## Applying VIF 2 (DELETE) -->
+
+<!-- ```{r} -->
+<!-- M4 = lm(log_hs ~ . -log_outs-log_runs, data = X) -->
+<!-- M5 = lm(log_hs ~ . -log_runs, data = X) -->
+
+
+<!-- list_M = list(M1, M2, M3, M4, M5) -->
+
+<!-- list_M %>%  -->
+<!--   purrr::map(car::vif) %>%  -->
+<!--   purrr::map(round, 2) -->
+<!-- ``` -->
+
+<!-- The top three variables for causing multicollinearity are:  -->
+
+<!-- + `log_runs` `r emo::ji("white_check_mark")` -->
+<!-- + `log_outs` `r emo::ji("white_check_mark")` -->
+<!-- + `log_ave` `r emo::ji("white_check_mark")` -->
+<!-- + `log_fours` `r emo::ji("x")` -->
 
 ## Final remarks
 
 + mcvis provides a new MC-index and a visualisation of multicollinearity in linear regression.
-+ mcvis builds on top of classical statistics under a resampling framework and uncovers new sources of collinearity.
++ mcvis builds on top of classical statistics under a resampling framework and uncovers new sources of collinearity with an understanding of variability.
 + Learn more from:
 
-  - R package (GitHub): [leaffur/mcvis](https://github.com/leaffur/mcvis)
-  - Python package (GitHub): [kevinwang09/mcvispy](https://github.com/kevinwang09/mcvispy)
-  - Email: [samuel.mueller@sydney.edu.au](mailto:samuel.mueller@sydney.edu.au)
-	- Twitter: [@KevinWang009](https://twitter.com/KevinWang009) and [@SamuelMuller74](https://twitter.com/SamuelMuller74)
+  - `r icon::fa('r-project')` [leaffur/mcvis](https://github.com/leaffur/mcvis)
+  - `r icon::fa('python')` [kevinwang09/mcvispy](https://github.com/kevinwang09/mcvispy)
+  - `r icon::fa('envelope')` [samuel.mueller@sydney.edu.au](mailto:samuel.mueller@sydney.edu.au)
+	- `r icon::fa('twitter')` [@KevinWang009](https://twitter.com/KevinWang009) and [@SamuelMuller74](https://twitter.com/SamuelMuller74)
 ---
 
 
 ## Bibliography
-
----
