@@ -27,8 +27,8 @@ class: center, middle, inverse, title-slide
 
 # mcvis: multicollinearity visualisation
 ## <a href="https://kevinwang09.github.io/pres/mcvis_talk" class="uri">https://kevinwang09.github.io/pres/mcvis_talk</a>
-### <a href="https://kevinwang09.github.io/">Kevin Y. X. Wang</a> <i class="fab  fa-twitter "></i> KevinWang009
-### 5th December 2019, Adelaide, ’Straya
+### Kevin Y. X. Wang <i class="fab  fa-twitter "></i> KevinWang009
+### 5th December 2019, Adelaide
 
 ---
 
@@ -103,7 +103,7 @@ glimpse(X)
 
 ## Interesting feature in this data
 
-There is a causual relationship: 
+There is a causal relationship: 
 
 `$$\text{batting ave} = \frac{\text{runs}}{\text{no. of outs}}, \qquad \text{or equivalently, } \qquad \texttt{log_runs} = \texttt{log_ave} + \texttt{log_outs}.$$`
 
@@ -360,7 +360,9 @@ round(eigen$d, 3)
 ## [8]     0.006
 ```
 
-+ Note that this only implicates the existence of MC, not which variable causes MC. 
+
+
+Note: this only implicates the existence of MC, not which variable causes MC. 
 
 
 ---
@@ -370,29 +372,50 @@ round(eigen$d, 3)
 Suppose that `\(X\)` is standardised to have mean 0 and variance 1, and we decompose `\((X^\top X)^{-1}\)` into `\(G\operatorname{diag}(1/\lambda_{1},\dots,1/\lambda_{p}){G^\top }\)`, then:
 
 .center[
-`\(\left(\begin{array}{ccc} VIF_1 \\\vdots \\VIF_p \end{array}\right)=\left(\begin{array}{ccc}g_{11}^2 &amp; \cdots &amp; g_{1p}^2 \\ \vdots &amp; \ddots &amp; \vdots \\ g_{p1}^2 &amp; \cdots &amp; g_{pp}^2 \end{array} \right) \left(\begin{array}{ccc} \tau_{1} \\ \vdots \\ \tau_{p} \end{array} \right)\)`,
+`\(\left(\begin{array}{ccc} VIF_1 \\\vdots \\VIF_p \end{array}\right)=\left(\begin{array}{ccc}g_{11}^2 &amp; \cdots &amp; g_{1p}^2 \\ \vdots &amp; \ddots &amp; \vdots \\ g_{p1}^2 &amp; \cdots &amp; g_{pp}^2 \end{array} \right) \left(\begin{array}{ccc} \tau_{1} \\ \vdots \\ \tau_{p} \end{array} \right) = (G \otimes G) \boldsymbol{\tau}\)`,
 ]
 
 where `\(\tau_{j}=1/\lambda_{j}, \quad j=1,\ldots,p\)`. 
 
-So that a larger `\(\tau_p\)` value implies great MC.  
-
---
-
-+ This tells us how these diagnostic measures are related.
-
-+ But it does **not** tell us about which variable `\(\boldsymbol{x}_j\)` causes the increase of `\(\tau_p\)`, which is an indicator of MC.
-
---
-
 .blockquote[
-Exploit the linearity between `\(\tau_p\)` and each VIFs (easier), to diagnose MC-causing variables (complex).
+.center[
+Larger `\(\tau_p\)` value indicates great MC.  
 ]
+]
+
+--
+
++ It will be great if we have a formula of the form `\(\tau_p = f(VIF_1, \dots, VIF_p)\)` to reveal the relationship between every variable `\(\boldsymbol{x}_j\)` and the cause of MC, `\(\tau_p\)`. 
+
++ But `\(G \otimes G\)` is generally not invertible.
 
 ---
 class: segue
 
-# mcvis
+# The mcvis method
+
+---
+
+## mcvis
+
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+.blockquote[
+.center[
+We perform linear regression between `\(\tau_p\)` and every VIF.
+]
+]
+
++ By quantifying the linearity between `\(\tau_p\)` and VIFs, we can diagnose MC-causing variables.
+
++ How can we generate multiple observations of both `\(\tau_p\)` and VIFs?
+
++ Sampling!
+
+
 ---
 
 &lt;center&gt;
@@ -437,14 +460,14 @@ class: segue
 ---
 class: segue
 
-# Results
+# The `mcvis` package
 
 
 
 
 ---
 
-## MC-index computation
+## 1. MC-index
 
 
 ```r
@@ -462,7 +485,7 @@ round(mcvis_result$MC[p-1,], 2)
 
 ---
 
-## mcvis visualisation
+## 2. MC visualisation
 
 .center[
 
@@ -475,7 +498,15 @@ ggplot_mcvis(mcvis_result)
 
 ---
 
-## Extensions: multiple `\(\tau\)`'s
+## 3. Shiny app for interactive exploration of data
+
+&lt;center&gt;
+&lt;img src="figures/shiny.png", width="60%"&gt;
+&lt;/center&gt;
+
+---
+
+## Extension work: Multiple `\(\tau\)`'s
 
 .center[
 
@@ -487,14 +518,6 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 ]
 
 ---
-## Extensions: Shiny app
-
-&lt;center&gt;
-&lt;img src="figures/shiny.png", width="60%"&gt;
-&lt;/center&gt;
-
----
-
 
 &lt;!-- ## Applying VIF 2 (DELETE) --&gt;
 
@@ -521,6 +544,7 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 
 + mcvis provides a new MC-index and a visualisation of multicollinearity in linear regression.
 + mcvis builds on top of classical statistics under a resampling framework and uncovers new sources of collinearity with an understanding of variability.
+
 + Learn more from:
 
   - <i class="fab  fa-r-project "></i> [leaffur/mcvis](https://github.com/leaffur/mcvis)
