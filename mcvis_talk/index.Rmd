@@ -21,7 +21,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.retina = 2)
 library(tidyverse)
 library(mcvis)
 library(corrplot)
@@ -301,7 +301,7 @@ We perform linear regression between $\tau_p$ and every VIF.
 
 + By quantifying the linearity between $\tau_p$ and VIFs, we can diagnose MC-causing variables.
 
-+ How can we generate multiple observations of both $\tau_p$ and VIFs?
++ How can we generate multiple "observations" of both $\tau_p$ and VIFs?
 
 + Sampling!
 
