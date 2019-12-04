@@ -1,7 +1,7 @@
 ---
 title: "mcvis: multicollinearity visualisation"
 subtitle: "https://kevinwang09.github.io/pres/mcvis_talk"
-author: "Kevin Y. X. Wang `r icon::fa('twitter')` KevinWang009"
+author: "Kevin Y. X. Wang"
 date: "5th December 2019, Adelaide"
 output:
   xaringan::moon_reader:
