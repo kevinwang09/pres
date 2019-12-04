@@ -2,7 +2,7 @@
 title: "mcvis: multicollinearity visualisation"
 subtitle: "https://kevinwang09.github.io/pres/mcvis_talk"
 author: "Kevin Y. X. Wang"
-date: "5th December 2019, Adelaide"
+date: "5 December 2019, Adelaide"
 output:
   xaringan::moon_reader:
     css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
@@ -26,7 +26,6 @@ library(tidyverse)
 library(mcvis)
 library(corrplot)
 library(car)
-library(emo)
 library(sjPlot)
 library(ggcorrplot)
 library(icon)
@@ -37,7 +36,7 @@ theme_set(theme_classic(18))
 ## Acknowledgement
 
 
-This is joint work with Chen Lin (Fudan Univeristy) and Prof Samuel Mueller (Sydney University).
+This is joint work with Chen Lin (Fudan Univeristy) and Prof Samuel Mueller (University of Sydney).
 
 <br>
 
@@ -96,7 +95,8 @@ X = clean_test_batting_career %>%
     log_runs = log10(runs),
     log_100 = log10(century + 1L)
     ) %>% 
-  dplyr::select(log_runs, log_ave, log_outs, everything())
+  dplyr::select(log_runs, log_ave, log_outs, everything()) %>% 
+  dplyr::mutate_all(signif, 3)
 ```
 
 ```{r}
@@ -145,8 +145,7 @@ broom::tidy(M1)
 
 ## Consequence of multi-collinearity
 
-+ Numerical instability is a typical sympton of MC. 
-
++ We will proceed with rounding all variables to 3 significant figures. 
 
 ```{r, echo = FALSE}
 M2 = lm(log_100 ~ . -log_runs, data = X)
@@ -162,12 +161,6 @@ sjPlot::tab_model(M1, M2, M3,
 ```
 
 
-+ We will proceed with rounding all variables to 2 significant figures. 
-
-```{r, include = FALSE}
-X = X %>% 
-  dplyr::mutate_all(signif, 3)
-```
 
 
 ---
@@ -206,13 +199,13 @@ Diagnosis of multicollinearity requires specialised statistics.
 ---
 class: segue
 
-# Existing methodologies
+# Existing methods
 
 ---
 
 ## 1. Variance inflation factors (VIFs)
 
-Introduced in Marquaridt (1970): 
+Introduced in Marquaridt (1970) and elsewhere: 
 
 $$VIF_j = \frac{1}{1 - R^2_j}, \qquad j = 1, \dots, p,$$
 where $R^2_j$ is the coefficient of determination when the $\boldsymbol{x}_j$ independent variable is treated as a response variable against the remaining $p-1$ independent variables. 
@@ -226,7 +219,7 @@ M1 = lm(log_100 ~ ., data = X)
 M1 %>% car::vif() %>% round(2)
 ```
 
-+ Using a threshold of 5 endorsed by Sheather (2009), 5 MC-causing variables are identified.
++ Using a threshold of 5 as suggested by Sheather (2009), 5 MC-causing variables are identified.
 
 <!-- The top four variables for causing multicollinearity are:  -->
 
@@ -245,7 +238,7 @@ Eigenvalues of the "uncentered covariance matrix" $\lambda_{1}\geq\lambda_{2}\ge
 A **smaller** value of $\lambda_{p}$ produces a matrix determinant closer to 0, which implies linear dependence in $X$ and thus MC (Stewart 1987).  
 
 ```{r}
-Xmat = X %>% as.data.frame() %>% as.matrix()
+Xmat = X %>% as.data.frame() %>% as.matrix() %>% scale()
 eigen = svd(t(Xmat) %*% Xmat)
 round(eigen$d, 3)
 ```
@@ -262,14 +255,14 @@ Note: this only implicates the existence of MC, not which variable causes MC.
 Suppose that $X$ is standardised to have mean 0 and variance 1, and we decompose $(X^\top X)^{-1}$ into $G\operatorname{diag}(1/\lambda_{1},\dots,1/\lambda_{p}){G^\top }$, then:
 
 .center[
-$\left(\begin{array}{ccc} VIF_1 \\\vdots \\VIF_p \end{array}\right)=\left(\begin{array}{ccc}g_{11}^2 & \cdots & g_{1p}^2 \\ \vdots & \ddots & \vdots \\ g_{p1}^2 & \cdots & g_{pp}^2 \end{array} \right) \left(\begin{array}{ccc} \tau_{1} \\ \vdots \\ \tau_{p} \end{array} \right) = (G \otimes G) \boldsymbol{\tau}$,
+$\left(\begin{array}{ccc} VIF_1 \\\vdots \\VIF_p \end{array}\right)=\left(\begin{array}{ccc}g_{11}^2 & \cdots & g_{1p}^2 \\ \vdots & \ddots & \vdots \\ g_{p1}^2 & \cdots & g_{pp}^2 \end{array} \right) \left(\begin{array}{ccc} \tau_{1} \\ \vdots \\ \tau_{p} \end{array} \right) = (G \circ G) \boldsymbol{\tau}$,
 ]
 
 where $\tau_{j}=1/\lambda_{j}, \quad j=1,\ldots,p$. 
 
 .blockquote[
 .center[
-Larger $\tau_p$ value indicates great MC.  
+Larger $\tau_p$ value indicates larger MC.  
 ]
 ]
 
@@ -277,7 +270,10 @@ Larger $\tau_p$ value indicates great MC.
 
 + It will be great if we have a formula of the form $\tau_p = f(VIF_1, \dots, VIF_p)$ to reveal the relationship between every variable $\boldsymbol{x}_j$ and the cause of MC, $\tau_p$. 
 
-+ But $G \otimes G$ is generally not invertible.
+```{r}
+solve(eigen$u * eigen$u)[1:2,1:5]
+```
+
 
 ---
 class: segue
