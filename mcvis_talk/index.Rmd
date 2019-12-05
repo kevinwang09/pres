@@ -106,7 +106,7 @@ X = clean_test_batting_career %>%
     log_runs = log10(runs),
     log_100 = log10(century + 1L)
     ) %>% 
-  dplyr::select(log_runs, log_ave, log_outs, everything()) %>% 
+  dplyr::select(log_runs, log_outs, log_ave, everything()) %>% 
   dplyr::mutate_all(signif, 3)
 ```
 
