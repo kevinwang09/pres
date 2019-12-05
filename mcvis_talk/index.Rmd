@@ -424,6 +424,16 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 | MC index | 0.00885 | 0.0113 |  0.282 | 0.002 | 0.023 |  0.276 | 0.015 |  .sydney-red[0.362] | 0.020 |
 |    VIF   |  23.84  |  23.36 | 109.76 |  7.82 | 41.52 | .sydney-blue[167.07] | 31.37 | 145.89 | 41.12 |
 
+```{r, echo = FALSE}
+set.seed(1)
+library(mplot)
+data("artificialeg", package = "mplot")
+p = dim(artificialeg)[2]-1
+X = artificialeg[,1:p]
+mcvis_result = mcvis(X)
+ggplot_mcvis(mcvis_result, p)
+```
+
 
 ---
 <!-- ## Applying VIF 2 (DELETE) -->
