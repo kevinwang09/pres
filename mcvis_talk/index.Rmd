@@ -20,6 +20,17 @@ output:
         scroll: false # disable slide transitions by scrolling
 ---
 
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           cite.style = "alphabetic",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = FALSE)
+bib <- ReadBib("./ref.bib", check = FALSE)
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.retina = 2)
 library(tidyverse)
@@ -438,3 +449,37 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 
 
 ## Bibliography
+
+```{r, print_refs, results='asis', echo=FALSE, warning=FALSE, message=FALSE}
+
+print(bib[key = "Marquaridt1970"],
+  .opts = list(check.entries = FALSE,
+               style = "html",
+               bib.style = "authoryear"))
+
+print(bib[key = "Sheather2009"],
+  .opts = list(check.entries = FALSE,
+               style = "html",
+               bib.style = "authoryear"))
+
+print(bib[key = "Belsley1984"],
+  .opts = list(check.entries = FALSE,
+               style = "html",
+               bib.style = "authoryear"))
+
+print(bib[key = "Friendly2009"],
+  .opts = list(check.entries = FALSE,
+               style = "html",
+               bib.style = "authoryear"))
+
+print(bib[key = "Obrien2007"],
+  .opts = list(check.entries = FALSE,
+               style = "html",
+               bib.style = "authoryear"))
+
+print(bib[key = "Stewart1987"],
+  .opts = list(check.entries = FALSE,
+               style = "html",
+               bib.style = "authoryear"))
+
+```
