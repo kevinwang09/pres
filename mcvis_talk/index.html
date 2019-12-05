@@ -526,6 +526,19 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 
 ---
 
+## Simulated data from `mplot`
+
++ The `R` package `mplot` (Tarr et. al. 2018) introduces a simulated data with correlated variables in context of variable selection. 
+
++ `mcvis` clearly identifies the correct cause of linearity (.sydney-red[x8]) whereas VIF identifies (.sydney-blue[x6]). 
+
+|          |  `\(x_1\)`  |  `\(x_2\)` |  `\(x_3\)` | `\(x_4\)` | `\(x_5\)` |  `\(x_6\)` | `\(x_7\)` |  `\(x_8\)` | `\(x_9\)` |
+|:--------:|:-------:|:------:|:------:|:-----:|:-----:|:------:|:-----:|:------:|:-----:|
+| MC index | 0.00885 | 0.0113 |  0.282 | 0.002 | 0.023 |  0.276 | 0.015 |  .sydney-red[0.362] | 0.020 |
+|    VIF   |  23.84  |  23.36 | 109.76 |  7.82 | 41.52 | .sydney-blue[167.07] | 31.37 | 145.89 | 41.12 |
+
+
+---
 &lt;!-- ## Applying VIF 2 (DELETE) --&gt;
 
 &lt;!-- ```{r} --&gt;
@@ -567,27 +580,28 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 (1970).
 &amp;ldquo;Generalized Inverses, Ridge Regression, Biased Linear Estimation, and Nonlinear Estimation&amp;rdquo;.
 In: &lt;em&gt;Technometrics&lt;/em&gt; 12.3, pp. 591&amp;ndash;612.&lt;/cite&gt;&lt;/p&gt;
+&lt;p&gt;&lt;cite&gt;Belsley, D. A.
+(1984).
+&amp;ldquo;Demeaning Conditioning Diagnostics through Centering&amp;rdquo;.
+In: &lt;em&gt;The American Statistician&lt;/em&gt; 38.2, pp. 73&amp;ndash;77.&lt;/cite&gt;&lt;/p&gt;
+&lt;p&gt;&lt;cite&gt;Stewart, G. W.
+(1987).
+&amp;ldquo;Collinearity and Least Squares Regression&amp;rdquo;.
+In: &lt;em&gt;Statistical Science&lt;/em&gt; 2.1, pp. 68&amp;ndash;84.&lt;/cite&gt;&lt;/p&gt;
+&lt;p&gt;&lt;cite&gt;O'Brien, R. M.
+(2007).
+&amp;ldquo;A Caution Regarding Rules of Thumb for Variance Inflation Factors&amp;rdquo;.
+In: &lt;em&gt;Quality &amp;amp; Quantity&lt;/em&gt; 41.5, pp. 673&amp;ndash;690.&lt;/cite&gt;&lt;/p&gt;
 &lt;p&gt;&lt;cite&gt;Sheather, S.
 (2009).
 &lt;em&gt;A Modern Approach to Regression with R&lt;/em&gt;.
 Springer Texts in Statistics.
 New York, NY: Springer New York.&lt;/cite&gt;&lt;/p&gt;
-&lt;p&gt;&lt;cite&gt;Belsley, D. A.
-(1984).
-&amp;ldquo;Demeaning Conditioning Diagnostics through Centering&amp;rdquo;.
-In: &lt;em&gt;The American Statistician&lt;/em&gt; 38.2, pp. 73&amp;ndash;77.&lt;/cite&gt;&lt;/p&gt;
 &lt;p&gt;&lt;cite&gt;Friendly, M. and E. Kwan
 (2009).
 &amp;ldquo;Statistical computing and graphics where's Waldo? Visualizing collinearity diagnostics&amp;rdquo;.
 In: &lt;em&gt;The American Statistician&lt;/em&gt; 63.1, pp. 56&amp;ndash;65.&lt;/cite&gt;&lt;/p&gt;
-&lt;p&gt;&lt;cite&gt;O'Brien, R. M.
-(2007).
-&amp;ldquo;A Caution Regarding Rules of Thumb for Variance Inflation Factors&amp;rdquo;.
-In: &lt;em&gt;Quality &amp;amp; Quantity&lt;/em&gt; 41.5, pp. 673&amp;ndash;690.&lt;/cite&gt;&lt;/p&gt;
-&lt;p&gt;&lt;cite&gt;Stewart, G. W.
-(1987).
-&amp;ldquo;Collinearity and Least Squares Regression&amp;rdquo;.
-In: &lt;em&gt;Statistical Science&lt;/em&gt; 2.1, pp. 68&amp;ndash;84.&lt;/cite&gt;&lt;/p&gt;
+list()
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
