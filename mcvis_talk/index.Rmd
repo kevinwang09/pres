@@ -454,10 +454,20 @@ ggplot_mcvis(mcvis_result, eig_max = 7)
 
 + Learn more from:
 
+.pull-left[
   - `r icon::fa('r-project')` [leaffur/mcvis](https://github.com/leaffur/mcvis)
   - `r icon::fa('python')` [kevinwang09/mcvispy](https://github.com/kevinwang09/mcvispy)
   - `r icon::fa('envelope')` [samuel.mueller@sydney.edu.au](mailto:samuel.mueller@sydney.edu.au)
 	- `r icon::fa('twitter')` [@KevinWang009](https://twitter.com/KevinWang009) and [@SamuelMuller74](https://twitter.com/SamuelMuller74)
+]	
+
+.pull-right[
+<center>
+<img src="https://raw.githubusercontent.com/kevinwang09/mcvis/master/inst/mcvis_logo.png", width="60%">
+</center>
+
+]
+
 ---
 
 
