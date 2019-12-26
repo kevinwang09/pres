@@ -1,0 +1,533 @@
+\documentclass[12pt,aspectratio=169]{beamer}
+
+\usepackage{color}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{moresize}
+
+\usepackage{setspace}
+
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{tikz-qtree}
+\tikzcdset{row sep/huge=5em}
+\tikzcdset{column sep/huge=4cm}
+\usepackage[framemethod=TikZ]{mdframed}
+
+
+
+
+\definecolor{themeBlue}{HTML}{3439B0}
+\definecolor{myBlue}{HTML}{3439B0}
+
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}}
+
+\tikzset{
+	invisible/.style={opacity=0},
+	visible on/.style={alt={#1{}{invisible}}},
+	alt/.code args={<#1>#2#3}{%
+		\alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}%
+	}
+}
+
+
+
+
+\mdfdefinestyle{MyFrame}{%
+    linecolor=black,
+    outerlinewidth=1pt,
+    roundcorner=5pt	,
+    innertopmargin=\baselineskip,
+    innerbottommargin=\baselineskip,
+    innerrightmargin=20pt,
+    innerleftmargin=20pt,
+    backgroundcolor=white}
+
+
+
+\setbeamercolor{block title}{bg=gray!60,fg=black}
+\setbeamercolor{block body}{bg=blue!20,fg=black}
+
+
+
+\usetheme{default}
+%\usetheme{metropolis}
+\usecolortheme{lily}
+%\usecolortheme{whale}
+\usefonttheme{professionalfonts}
+\setbeamercovered{transparent} 
+\setbeamertemplate{navigation symbols}{} 
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{section in toc}[square]
+\setbeamertemplate{enumerate items}[default]
+
+
+
+
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\bX}{\boldsymbol{X}}
+\newcommand{\bY}{\boldsymbol{Y}}
+\newcommand{\by}{\boldsymbol{y}}
+\newcommand{\bW}{\boldsymbol{W}}
+\newcommand{\bZ}{\boldsymbol{Z}}
+\newcommand{\bz}{\boldsymbol{z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\bbeta}{\boldsymbol{\beta}}
+\newcommand{\bbetaHat}{\widehat{\boldsymbol{\beta}}}
+\newcommand{\bbetaTilde}{\widetilde{\boldsymbol{\beta}}}
+\newcommand{\bPi}{\boldsymbol{\pi}}
+\newcommand{\bPiHat}{\widehat{\boldsymbol{\pi}}}
+\newcommand{\bPiTilde}{\widetilde{\boldsymbol{\pi}}}
+\newcommand{\hatPi}{\widehat{\pi}}
+\newcommand{\bzHat}{\widehat{\bz}}
+\newcommand{\alphaFull}{\alpha_{f}}
+\newcommand{\piizero}{\pi_i^{(0)}}
+\newcommand{\piit}{\pi_i^{(t)}}
+\newcommand{\logit}{\operatorname{logit}}
+%\usepackage[style=authoryear]{biblatex}
+
+
+\title{APES: Approximated Exhaustive Search for GLM}
+
+\author{Kevin Y.X. Wang}
+
+
+
+\begin{document}
+
+%\begin{frame}
+%\maketitle
+%\end{frame}
+
+
+\begin{frame}
+\begin{center}
+	{\Large \color{myBlue} APES: Approximated Exhaustive Search for GLM}
+	
+	\vspace{1cm}
+	
+	{\normalsize  Kevin Y.X. Wang}
+	
+	\vspace{0.5cm}
+	
+	{\footnotesize School of Mathematics and Statistics \\ The University of Sydney}
+
+	\vspace{1cm}
+
+	{\normalsize Peking University - Beijing \\ 29 December 2019}
+
+	\vspace{1cm}
+\begin{columns}
+	\begin{column}{0.5\linewidth}
+		\flushleft{\includegraphics[scale=0.12]{usyd.png}}
+	\end{column}
+	\begin{column}{0.5\linewidth}
+		\flushright {\scriptsize \includegraphics[scale=0.05]{Twitter.png}$@$KevinWang009}
+	\end{column}
+\end{columns}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Acknowledgement}
+\begin{itemize}
+	\item This is joint work with Prof Samuel M\"{u}ller, Dr Garth Tarr and Prof Jean Yang.
+	\item \texttt{mplot} Tarr2018 is a package to assess model stability and variable selection for linear models and generalised linear models.
+	\item One of the disadvantage of exhaustive search is its speed, APES aims to improve on this using approximation methods.
+	\item APES is now published at ANZJS: \url{https://doi.org/10.1111/anzs.12276}. 
+\end{itemize}
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.55\linewidth]{../../../figures/mplot_ad}
+%%	\caption{\texttt{mplot} is a package to assess model %stability and variable selection for linear models and %generalised linear models.}
+%	\label{fig:mplotad}
+%\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\Huge{\color{themeBlue} Background}
+\end{frame}
+
+
+\begin{frame}{Data and models}
+\setstretch{1.5}
+	\begin{itemize}
+		\item $ \by = (y_1, y_2, \dots, y_n)^\top $, with independent $ y_i  \in \lbrace0, 1\rbrace$, $ i = 1, \dots, n $. 
+		\item Design matrix $ \bX = (\bx_1, \dots, \bx_p) \in \mathbb{R}^{n \times p}$. 
+		\item Index the columns of $ \bX $ by $ \lbrace 1, \dots, p \rbrace$. 
+		\item 
+		Let $ \alpha $ denote any subset of $ p_\alpha $ distinct elements from $ \lbrace 1, \dots, p \rbrace $. Use $ \mathcal{A} $ to denote the collection of all $ \alpha $, so $ |\mathcal{A}| = 2^p $.
+		
+		\item $ \bX_\alpha $ denote the $ n \times p_\alpha $ matrix with columns given by the columns of $ \bX $ whose indices appear in $ \alpha $.
+	\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Logistic regression}
+\setstretch{1.5}
+ \begin{itemize}
+ 	\item We model the conditional response variable $ Y_i | \bX$ as $ \operatorname{Bernoulli}(\pi_i) $, where $ \pi_i = \mathbb{P}(Y_i  = 1| \bX)$. 
+ 	\item We will use the \textbf{logistic function} as our link function, so $ \bx_i^\top \bbeta = \operatorname{logit}(\pi_i) = \ln \left( \pi_i/(1-\pi_i) \right)$.
+ 	\item Model fitting usually involves estimating $ \bbeta $ (or equivalently, $ \bPi $). 
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Iterative Reweighted Least Square (IRLS)}
+	\begin{enumerate}
+	\item Denote weights $ w_i = \pi_i (1-\pi_i)$ and other estimates at the $ t $-th iteration with a superscript $ (t) $.
+	\item Construct 
+	\begin{equation*}
+	z_i^{(t)} = \underbrace{\logit\left( \piit \right)}_{\bx_i^\top \bbeta^{(t)}}+ \frac{y_i-\piit}{\piit(1-\piit)}.
+	\end{equation*}
+	\item Update via
+	\begin{equation*}
+	\bbetaHat^{(t+1)} \leftarrow (\bX^\top \bW^{(t)} \bX)^{-1} \bX^\top \bW^{(t)} \bz^{(t)},
+	\end{equation*}
+	with $ \bW^{(t)} = \operatorname{diag}\left(w_i^{(t)}\right)$.
+	
+	\item At convergence, $ \bbetaHat = (\bX^\top \bW \bX)^{-1}\bX^\top \bW \bz$, which equals to the MLE of logistic regression model.
+\end{enumerate}
+\end{frame}
+
+
+
+
+\begin{frame}{Challenges in exhaustive GLM variable selection}
+
+For large $ p $, exhaustive variable selection in GLM is difficult:
+	\begin{enumerate}
+%		\item No close form for MLE, so numerical optimisations are needed.
+
+\item The computational cost of IRLS is $ \mathcal{O}(np^2) $ per iteration.
+
+\item We need to explore all $ 2^p $ models.
+\end{enumerate}
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.7\linewidth]{../../../figures/sloth}
+%	\label{fig:sloth}
+%\end{figure}
+
+
+
+\end{frame}
+
+
+\begin{frame}[fragile] %<-----------------------
+	\frametitle{Aim of APES}
+	\begin{mdframed}[style=MyFrame]
+	Can we perform linear exhaustive variable selection (which benefits from fast algorithms) and use the results to approximate exhaustive GLM variable selection?
+	\end{mdframed}
+\vspace{1.5cm}
+\begin{equation*}
+\begin{tikzcd}[column sep=huge]
+\text{GLM exhaustive}
+& \text{LM exhaustive}  \arrow[l, "\text{Can this be done?}"', red]
+\end{tikzcd}
+\end{equation*}
+\end{frame}
+
+
+
+\section{APES: APproximated Exhaustive Search}
+
+
+\begin{frame}
+\Huge{\color{themeBlue} 1. Turning GLM to LM}
+\end{frame}
+
+\begin{frame}[fragile] %<-----------------------
+	\frametitle{Exhaustively computing modified MLE}
+	\setstretch{1.5}
+	\begin{itemize}
+		\item \citep{Hosmer1989} described an approximation to exhaustive variable selection for logistic regression without the need for numerical optimisation. 
+		
+		\item Their method starts with the estimated probability {\color{blue} $ \bPiHat(\alphaFull) $}, from the \textbf{full} logistic model.
+		
+		\item Then, for each model $ {\color{red} \alpha } \in \mathcal{A} $, we calculate:
+		\begin{equation*} \label{eqn:biasedBetaHat}
+		\hspace*{-0.7cm}
+		\bbetaHat({\color{red}\alpha}; {\color{blue}\bPiHat(\alphaFull)}) = (\bX_{{\color{red}\alpha}}^\top \bW({\color{blue}\bPiHat(\alphaFull)}) \bX_{{\color{red}\alpha}})^{-1}\bX_{{\color{red}\alpha}}^\top \bW({\color{blue}\bPiHat(\alphaFull)}) \bz({\color{blue}\bPiHat(\alphaFull)}).
+		\end{equation*}
+		
+		\item This is \textbf{NOT} the MLE for $ \alpha $, which should be $\bbetaHat({\color{red}\alpha}; \bPiHat({\color{red}\alpha})) $. 
+		
+%		\item It was proven that $\bbetaHat(\alpha_2; \bPiHat(\alpha_2)) = \bbetaHat(\alpha_2; \bPiHat(\alphaFull)) + \text{bias term}$.
+
+	\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile] %<-----------------------
+	\frametitle{Variable selection using the modified estimator}
+		\setstretch{1.5}
+	\begin{itemize}
+		\item Given $ \bbetaHat({\color{red}\alpha}; {\color{blue}\bPiHat(\alphaFull)}) $, we could \textbf{approximate} RSS or BIC for all $ {\color{red}\alpha} \in \mathcal{A} $. 
+		
+		\item Upon selection of a small set of desired models, we can recompute the MLE and calculate other model fit statistics. 
+		
+%\vspace{0.5cm}
+%		\item These approximations provide a framework to approximate exhaustive variable search in the GLM space via an exhaustive model fitting in the LM space. 
+
+\vspace{0.5cm}
+\begin{equation*}
+\begin{tikzcd}[column sep=huge]
+\text{GLM exhaustive}
+& \arrow[l, red, "\text{Hosmer approx.}", red] \text{LM exhaustive}
+\end{tikzcd}
+\end{equation*}
+
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\Huge{\color{themeBlue} 2. Reducing computational time}
+\end{frame}
+
+
+
+\begin{frame}{Best subsets search}
+	\begin{itemize}
+		
+		\item Application of this approximation method is limited by the number of LMs we can explore.
+		
+		\item For $ p \approx 50 $, $ \mathcal{A}$ is approximately 1 quadrillion in size, which is too large to explore exhaustively. 
+		
+		\item A \underline{best subset} algorithm limits our search to a subset of $ \mathcal{A} $ but it guarantees to contain the global RSS-optimal model.
+		
+		\item \textbf{leaps} Furnival1974, Lumley2017 discard ``branches" of models with insufficient fit. 
+	\end{itemize}
+
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.35\linewidth]{../../../figures/branch_and_bound}
+%	\label{fig:branchandbound}
+%\end{figure}
+\end{frame}
+
+
+
+\begin{frame}{Mixed Integer Optimisation}
+\begin{itemize}
+	\item Bertsimas2016 showed that it is feasible to perform best subset search for linear models with $ p $ in the hundreds.
+	\item The most attractive component: guaranteed \textbf{sub-optimality} if algorithm is terminated before full convergence. Thus allowing a upper bound for real time limit.
+%	\item Constraints using different loss functions and coefficient sizes are also possible. 
+	\item Current implementation in \texttt{R} is \texttt{bestsubset}, Hastie2017, which outputs the RSS-best linear model for each model size. 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile] %<-----------------------
+	\frametitle{APES: \underline{Ap}proximated \underline{E}xhaustive \underline{S}earch}
+%	\begin{itemize}
+%		\item There isn't such optimal algorithm for GLMs. 
+%				
+%		\item There is \textbf{no guarantee} that the best $ m $ linear models (as judged by BIC, say) will necessarily be the best $ m $ GLMs if an actual ES was performed in the GLM space. 
+%		
+%	\end{itemize}
+	\begin{equation*}
+	\begin{tikzcd}[column sep = huge, row sep = huge, ampersand replacement=\&]
+	\text{GLM best subset} \arrow[visible on=<1>, d, "\text{no algorithm}"', blue]
+	\& \text{LM best subset}   \arrow[visible on=<2>, d, "\text{MIO}", red] \\
+	\text{GLM exhaustive} \arrow[visible on=<2>, u, red, "\text{infer}"]
+	\& \arrow[visible on=<2>, l, red, "\text{Hosmer approx.}", red] \text{LM exhaustive}
+	\end{tikzcd}
+	\end{equation*}
+
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{How fast is APES compare to genuine exhaustive search?} 
+Very. 
+%\begin{figure}
+%	\centering
+%	
+%	\visible<2>{
+%	\includegraphics[width=0.4\linewidth]{../../../mod_sel_simulations/figures/leapsTimePlot_EcoSta_17_Apr_2019}
+%	}
+%\end{figure}
+
+\begin{columns}
+	\begin{column}{0.5\linewidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{goldStandardTimePlot_EcoSta_2019_Jun_24}
+		\end{figure}
+	\end{column}
+	\begin{column}{0.5\linewidth}
+		\begin{figure}
+			\centering
+			\visible<2>{
+				\includegraphics[width=\linewidth]{leapsTimePlot_EcoSta_17_Apr_2019}
+			}
+		\end{figure}
+	\end{column}
+\end{columns}
+\end{frame}
+
+
+\section{Simulation}
+
+
+
+\begin{frame}
+\Huge{\color{themeBlue} Simulation}
+\end{frame}
+
+
+\begin{frame}{Simulation set-up}
+	\begin{itemize}
+		\item $ n  = 500,  p = 100$, number of non-zero coefficient is $ k = 6 $.
+		
+		\item Intercept term is set to 0, then we tried 3 different choices of $ \bbeta $: 
+		\begin{enumerate}
+			\item Equally spaced indices: $ (\frac{1}{2}, 0, \dots, 0,\frac{1}{2}, 0, \dots,0,\frac{1}{2}, 0, \dots, 0,\frac{1}{2}, 0, \dots, 0,\frac{1}{2}, 0, \dots, \frac{1}{2}) $.
+			\item Block of indices, same magnitude/sign: $ (\frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, 0, \dots, 0) $.
+			\item Block of indices, different magnitude/sign: $ (\frac{1}{3}, -1, 1, \frac{2}{3}, -\frac{2}{3}, -\frac{1}{3}, 0, \dots, 0) $.
+		\end{enumerate}
+		
+		\item Generating $ \bX \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{\Sigma})$, with $ \Sigma_{ij} = \rho^{|i-j|} $, $ \rho = 0.5 $ or $ -0.5 $. Then standardise. 
+		
+		
+		
+		
+		\item We repeated the simulation 100 times and compared APES against de-biased Lasso using various evaluation metrics.
+	\end{itemize}
+\end{frame}
+
+%\begin{frame}{Simulation summary}
+%\begin{itemize}
+%	\item Fix the number of non-zero coefficients to be 6 (a sparse setting):
+%	
+%		\begin{itemize}
+%			\item APES considered RSS-best models for size from 1 to 11.
+%			\item Lasso considered models with 1000 $ \lambda $ values. 
+%		\end{itemize}
+%	
+%	\item APES performed well when:
+%		\begin{enumerate}
+%			\item correlation is `mixed', with $ \rho = -0.5 $. 
+%			\item non-zero coefficients are grouped together. 
+%		\end{enumerate} 
+%	
+%	\item APES has the ability to select informative models in the event of hitting time limit. 
+%\end{itemize}
+%\end{frame}
+
+
+%
+%
+%\begin{frame}{Evaluation 1: model path}
+%For every model size, we have a model considered by both APES and lasso. 
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=1\linewidth]{../../../figures/ibsarScBicModelPlot1_2017_Nov_09}
+%\end{figure}
+%
+%\end{frame}
+%
+%
+%\begin{frame}{Evaluation 1: model path}
+%We are able to identify the true model size, even in the case of hitting time limit. 
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=1\linewidth]{../../../figures/ibsarScBicModelPlot2_2017_Nov_09}
+%\end{figure}
+%\end{frame}
+%
+
+
+
+
+\begin{frame}{Evaluation 1: saturated models}
+
+\begin{itemize}
+	\item For each model size, APES and Lasso outputs one model. 
+	\item In most cases, APES has less false exclusion of variables than Lasso. 
+\end{itemize}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{ecostaCorrectModelPlot_2018_May_11}
+\end{figure}
+
+
+\end{frame}
+
+
+
+\begin{frame}{Evaluation 2: variable selection}
+
+\begin{itemize}
+	\item BIC was used to select an optimal model. 
+	\item In most cases, APES has higher selection probability of active variables than Lasso. 
+\end{itemize}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{ecostaSelectedModelBetaPlot_2018_May_11}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}{Some extensions}
+The choice of $ {\color{blue}\bPiHat(\alphaFull)} $ can be relaxed in two different ways: 
+\begin{itemize}
+	\item The full model $ \alphaFull $ is not necessarily the best for variable selection. 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{varSelectionPlot_2018_Sep_11}
+\end{figure}
+	\item We could replace the MLE by other estimators, e.g. the Lasso or robust quasi-likelihood estimator.
+\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Final remarks}
+\begin{enumerate}
+	\item APES is a \textbf{fast approximation} method for \textbf{exhaustive} variable selection in GLM. 
+	\item APES pushes model dimensions into the hundreds/thousands and serves as a standard of comparison like a true exhaustive search. 
+	\item APES is now published at ANZJS: \url{https://doi.org/10.1111/anzs.12276}. 
+	\begin{itemize}
+		\item \href{https://github.com/kevinwang09/APES}{https://github.com/kevinwang09/APES}
+		\item \href{https://github.com/garthtarr/mplot}{https://github.com/garthtarr/mplot}
+%		\item \href{https://github.com/kevinwang09/APES}{https://github.com/kevinwang09/APES}
+		\item Email: \href{mailto:kevin.wang@sydney.edu.au}{kevin.wang@sydney.edu.au}. Twitter: \href{https://twitter.com/KevinWang009}{@KevinWang009}
+	\end{itemize}
+   
+    \item Statistical Society of Australia has generously sponsored my travel to Taichung. 
+\end{enumerate}
+\end{frame}
+
+
+
+\begin{frame}{References}
+\bibliographystyle{apalike}
+\scriptsize
+\bibliography{APES_ref.bib}
+\end{frame}
+
+\end{document}
