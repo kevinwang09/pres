@@ -141,15 +141,32 @@
 \begin{itemize}
 	\item This is joint work with Prof Samuel M\"{u}ller, Dr Garth Tarr and Prof Jean Yang.
 	\item \texttt{mplot} Tarr2018 is a package to assess model stability and variable selection for linear models and generalised linear models.
-	\item One of the disadvantage of exhaustive search is its speed, APES aims to improve on this using approximation methods.
+\end{itemize}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.55\linewidth]{mplot_ad}
+%	\caption{\texttt{mplot} is a package to assess model %stability and variable selection for linear models and %generalised linear models.}
+	\label{fig:mplotad}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{My talk in one slide}
+\begin{columns}
+	\begin{column}{0.5\linewidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=\linewidth]{goldStandardTimePlot_EcoSta_2019_Jun_24}
+		\end{figure}
+	\end{column}
+	\begin{column}{0.5\linewidth}
+\begin{itemize}
+	\item Exhaustive variable selection for GLM is slow. 
+	\item APES improves the speed of exhaustive search using approximations. 
 	\item APES is now published at ANZJS: \url{https://doi.org/10.1111/anzs.12276}. 
 \end{itemize}
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.55\linewidth]{../../../figures/mplot_ad}
-%%	\caption{\texttt{mplot} is a package to assess model %stability and variable selection for linear models and %generalised linear models.}
-%	\label{fig:mplotad}
-%\end{figure}
+	\end{column}
+\end{columns}
 \end{frame}
 
 
@@ -210,17 +227,39 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 
 \item The computational cost of IRLS is $ \mathcal{O}(np^2) $ per iteration.
 
+% \item We need to explore all $ 2^p $ models.
+\end{enumerate}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{sloth_one}
+	\label{fig:sloth}
+\end{figure}
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}{Challenges in exhaustive GLM variable selection}
+
+For large $ p $, exhaustive variable selection in GLM is difficult:
+	\begin{enumerate}
+%		\item No close form for MLE, so numerical optimisations are needed.
+
+\item The computational cost of IRLS is $ \mathcal{O}(np^2) $ per iteration.
+
 \item We need to explore all $ 2^p $ models.
 \end{enumerate}
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.7\linewidth]{../../../figures/sloth}
-%	\label{fig:sloth}
-%\end{figure}
-
-
-
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{sloth_multiple}
+	\label{fig:sloth}
+\end{figure}
 \end{frame}
+
+
 
 
 \begin{frame}[fragile] %<-----------------------
@@ -313,11 +352,11 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 		\item \textbf{leaps} Furnival1974, Lumley2017 discard ``branches" of models with insufficient fit. 
 	\end{itemize}
 
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.35\linewidth]{../../../figures/branch_and_bound}
-%	\label{fig:branchandbound}
-%\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.35\linewidth]{branch_and_bound}
+	\label{fig:branchandbound}
+\end{figure}
 \end{frame}
 
 
@@ -509,16 +548,15 @@ The choice of $ {\color{blue}\bPiHat(\alphaFull)} $ can be relaxed in two differ
 \begin{frame}{Final remarks}
 \begin{enumerate}
 	\item APES is a \textbf{fast approximation} method for \textbf{exhaustive} variable selection in GLM. 
-	\item APES pushes model dimensions into the hundreds/thousands and serves as a standard of comparison like a true exhaustive search. 
+	\item APES pushes model dimensions into the hundreds and serves as a standard of comparison like a true exhaustive search. 
 	\item APES is now published at ANZJS: \url{https://doi.org/10.1111/anzs.12276}. 
 	\begin{itemize}
 		\item \href{https://github.com/kevinwang09/APES}{https://github.com/kevinwang09/APES}
 		\item \href{https://github.com/garthtarr/mplot}{https://github.com/garthtarr/mplot}
 %		\item \href{https://github.com/kevinwang09/APES}{https://github.com/kevinwang09/APES}
-		\item Email: \href{mailto:kevin.wang@sydney.edu.au}{kevin.wang@sydney.edu.au}. Twitter: \href{https://twitter.com/KevinWang009}{@KevinWang009}
+		\item Email: \href{mailto:kevin.wang@sydney.edu.au}{kevin.wang@sydney.edu.au}. 
+		\item Twitter: \href{https://twitter.com/KevinWang009}{@KevinWang009}
 	\end{itemize}
-   
-    \item Statistical Society of Australia has generously sponsored my travel to Taichung. 
 \end{enumerate}
 \end{frame}
 
