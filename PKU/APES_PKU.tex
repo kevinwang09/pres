@@ -27,13 +27,15 @@
 \definecolor{myBlue}{HTML}{3439B0}
 
 
-%\usepackage{natbib}
-%\bibliographystyle{abbrvnat}
-%\setcitestyle{authoryear,open={(},close={)}}
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}}
 
-\usepackage[english]{babel}
-\usepackage[natbib=true,style=authoryear,backend=bibtex,useprefix=true]{biblatex}
-\addbibresource{APES_ref.bib}
+
+%\usepackage[english]{babel}
+%\usepackage[natbib=true, bibstyle=authoryear, citestyle=authoryear-comp]{biblatex}
+%\addbibresource{APES_curated.bib}
+%\bibliographystyle{plain}
 
 \tikzset{
 	invisible/.style={opacity=0},
@@ -144,7 +146,7 @@
 \begin{frame}{Acknowledgement}
 \begin{itemize}
 	\item This is joint work with Prof Samuel M\"{u}ller, Dr Garth Tarr and Prof Jean Yang.
-	\item \texttt{mplot} \citet{Tarr2018} is a package to assess model stability and variable selection for linear models and generalised linear models.
+	\item \texttt{mplot} \cite{Tarr2018} is a package to assess model stability and variable selection for linear models and generalised linear models.
 \end{itemize}
 \begin{figure}
 	\centering
@@ -291,7 +293,7 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 	\frametitle{Exhaustively computing modified MLE}
 	\setstretch{1.5}
 	\begin{itemize}
-		\item \citet{Hosmer1989} described an approximation to exhaustive variable selection for logistic regression without the need for numerical optimisation. 
+		\item \cite{Hosmer1989} described an approximation to exhaustive variable selection for logistic regression without the need for numerical optimisation. 
 		
 		\item Their method starts with the estimated probability {\color{blue} $ \bPiHat(\alphaFull) $}, from the \textbf{full} logistic model.
 		
@@ -365,7 +367,7 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 
 \begin{frame}{Mixed Integer Optimisation}
 \begin{itemize}
-	\item \citet{Bertsimas2016} showed that it is feasible to perform best subset search for linear models with $ p $ in the hundreds.
+	\item \cite{Bertsimas2016} showed that it is feasible to perform best subset search for linear models with $ p $ in the hundreds.
 	\item The most attractive component: guaranteed \textbf{sub-optimality} if algorithm is terminated before full convergence. Thus allowing a upper bound for real time limit.
 %	\item Constraints using different loss functions and coefficient sizes are also possible. 
 	\item Current implementation in \texttt{R} is \texttt{bestsubset}, \citep{Hastie2017}, which outputs the RSS-best linear model for each model size. 
@@ -545,6 +547,12 @@ The choice of $ {\color{blue}\bPiHat(\alphaFull)} $ can be relaxed in two differ
 \end{frame}
 
 
+\begin{frame}{Software}
+\begin{itemize}
+\item \texttt{APES} is available on GitHub: \url{https://github.com/kevinwang09/APES}.
+\item Example: \url{https://kevinwang09.github.io/APES/reference/plot_vi.html}. 
+\end{itemize}
+\end{frame}
 
 
 \begin{frame}{Final remarks}
@@ -565,6 +573,9 @@ The choice of $ {\color{blue}\bPiHat(\alphaFull)} $ can be relaxed in two differ
 
 
 \begin{frame}{References}
+\bibliographystyle{apalike}
+\scriptsize
+\bibliography{APES_ref.bib}
 \end{frame}
 
 \end{document}
