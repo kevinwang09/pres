@@ -26,9 +26,14 @@
 \definecolor{themeBlue}{HTML}{3439B0}
 \definecolor{myBlue}{HTML}{3439B0}
 
-\usepackage{natbib}
-\bibliographystyle{abbrvnat}
-\setcitestyle{authoryear,open={(},close={)}}
+
+%\usepackage{natbib}
+%\bibliographystyle{abbrvnat}
+%\setcitestyle{authoryear,open={(},close={)}}
+
+\usepackage[english]{babel}
+\usepackage[natbib=true,style=authoryear,backend=bibtex,useprefix=true]{biblatex}
+\addbibresource{APES_ref.bib}
 
 \tikzset{
 	invisible/.style={opacity=0},
@@ -92,7 +97,6 @@
 \newcommand{\piizero}{\pi_i^{(0)}}
 \newcommand{\piit}{\pi_i^{(t)}}
 \newcommand{\logit}{\operatorname{logit}}
-%\usepackage[style=authoryear]{biblatex}
 
 
 \title{APES: Approximated Exhaustive Search for GLM}
@@ -140,7 +144,7 @@
 \begin{frame}{Acknowledgement}
 \begin{itemize}
 	\item This is joint work with Prof Samuel M\"{u}ller, Dr Garth Tarr and Prof Jean Yang.
-	\item \texttt{mplot} Tarr2018 is a package to assess model stability and variable selection for linear models and generalised linear models.
+	\item \texttt{mplot} \citet{Tarr2018} is a package to assess model stability and variable selection for linear models and generalised linear models.
 \end{itemize}
 \begin{figure}
 	\centering
@@ -163,7 +167,7 @@
 \begin{itemize}
 	\item Exhaustive variable selection for GLM is slow. 
 	\item APES improves the speed of exhaustive search using approximations. 
-	\item APES is now published at ANZJS: \url{https://doi.org/10.1111/anzs.12276}. 
+	\item APES is now published at Australian and New Zealand Journal of Statistics: \\ \url{https://doi.org/10.1111/anzs.12276}. 
 \end{itemize}
 	\end{column}
 \end{columns}
@@ -232,7 +236,6 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{sloth_one}
-	\label{fig:sloth}
 \end{figure}
 \end{frame}
 
@@ -255,7 +258,6 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{sloth_multiple}
-	\label{fig:sloth}
 \end{figure}
 \end{frame}
 
@@ -289,7 +291,7 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 	\frametitle{Exhaustively computing modified MLE}
 	\setstretch{1.5}
 	\begin{itemize}
-		\item \citep{Hosmer1989} described an approximation to exhaustive variable selection for logistic regression without the need for numerical optimisation. 
+		\item \citet{Hosmer1989} described an approximation to exhaustive variable selection for logistic regression without the need for numerical optimisation. 
 		
 		\item Their method starts with the estimated probability {\color{blue} $ \bPiHat(\alphaFull) $}, from the \textbf{full} logistic model.
 		
@@ -349,7 +351,7 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 		
 		\item A \underline{best subset} algorithm limits our search to a subset of $ \mathcal{A} $ but it guarantees to contain the global RSS-optimal model.
 		
-		\item \textbf{leaps} Furnival1974, Lumley2017 discard ``branches" of models with insufficient fit. 
+		\item \textbf{leaps} \citep{Furnival1974, Lumley2017} discard ``branches" of models with insufficient fit. 
 	\end{itemize}
 
 \begin{figure}
@@ -363,10 +365,10 @@ For large $ p $, exhaustive variable selection in GLM is difficult:
 
 \begin{frame}{Mixed Integer Optimisation}
 \begin{itemize}
-	\item Bertsimas2016 showed that it is feasible to perform best subset search for linear models with $ p $ in the hundreds.
+	\item \citet{Bertsimas2016} showed that it is feasible to perform best subset search for linear models with $ p $ in the hundreds.
 	\item The most attractive component: guaranteed \textbf{sub-optimality} if algorithm is terminated before full convergence. Thus allowing a upper bound for real time limit.
 %	\item Constraints using different loss functions and coefficient sizes are also possible. 
-	\item Current implementation in \texttt{R} is \texttt{bestsubset}, Hastie2017, which outputs the RSS-best linear model for each model size. 
+	\item Current implementation in \texttt{R} is \texttt{bestsubset}, \citep{Hastie2017}, which outputs the RSS-best linear model for each model size. 
 \end{itemize}
 \end{frame}
 
@@ -563,9 +565,6 @@ The choice of $ {\color{blue}\bPiHat(\alphaFull)} $ can be relaxed in two differ
 
 
 \begin{frame}{References}
-\bibliographystyle{apalike}
-\scriptsize
-\bibliography{APES_ref.bib}
 \end{frame}
 
 \end{document}
