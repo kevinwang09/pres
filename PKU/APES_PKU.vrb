@@ -1,0 +1,16 @@
+\frametitle{APES: \underline{Ap}proximated \underline{E}xhaustive \underline{S}earch}
+%	\begin{itemize}
+%		\item There isn't such optimal algorithm for GLMs.
+%				
+%		\item There is \textbf{no guarantee} that the best $ m $ linear models (as judged by BIC, say) will necessarily be the best $ m $ GLMs if an actual ES was performed in the GLM space.
+%		
+%	\end{itemize}
+	\begin{equation*}
+	\begin{tikzcd}[column sep = huge, row sep = huge, ampersand replacement=\&]
+	\text{GLM best subset} \arrow[visible on=<1>, d, "\text{no algorithm}"', blue]
+	\& \text{LM best subset}   \arrow[visible on=<2>, d, "\text{MIO}", red] \\
+	\text{GLM exhaustive} \arrow[visible on=<2>, u, red, "\text{infer}"]
+	\& \arrow[visible on=<2>, l, red, "\text{Hosmer approx.}", red] \text{LM exhaustive}
+	\end{tikzcd}
+	\end{equation*}
+

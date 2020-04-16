@@ -1,0 +1,45 @@
+\begin{thebibliography}{6}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bertsimas et~al.(2016)Bertsimas, King, and Mazumder]{Bertsimas2016}
+D.~Bertsimas, A.~King, and R.~Mazumder.
+\newblock {Best subset selection via a modern optimization lens}.
+\newblock \emph{Annals of Statistics}, 44\penalty0 (2):\penalty0 813--852,
+  2016.
+\newblock ISSN 00905364.
+\newblock \doi{10.1214/15-AOS1388}.
+
+\bibitem[Furnival and Wilson(1974)]{Furnival1974}
+G.~Furnival and R.~Wilson.
+\newblock {Regressions by leaps and bounds}.
+\newblock \emph{Technometrics}, 16\penalty0 (4):\penalty0 499--511, 1974.
+
+\bibitem[Hastie et~al.(2017)Hastie, Tibshirani, and Tibshirani]{Hastie2017}
+T.~Hastie, R.~R.~J. Tibshirani, and R.~R.~J. Tibshirani.
+\newblock {Extended comparisons of best subset selection, forward stepwise
+  selection, and the Lasso following ``Best subset selection from a modern
+  optimization lens" by Bertsimas, King, and Mazumder (2016)}.
+\newblock \emph{arXiv e-prints}, pages 1--52, 2017.
+
+\bibitem[Hosmer et~al.(1989)Hosmer, Jovanovic, and Lemeshow]{Hosmer1989}
+D.~W. Hosmer, B.~Jovanovic, and S.~Lemeshow.
+\newblock {Best subsets logistic regression}.
+\newblock \emph{Biometrics}, 45\penalty0 (4):\penalty0 1265--1270, 1989.
+
+\bibitem[Lumley and Miller(2017)]{Lumley2017}
+T.~Lumley and A.~Miller.
+\newblock leaps: regression subset selection, 2017.
+\newblock URL \url{https://cran.r-project.org/package=leaps}.
+
+\bibitem[Tarr et~al.(2018)Tarr, M{\"{u}}ller, and Welsh]{Tarr2018}
+G.~Tarr, S.~M{\"{u}}ller, and A.~H. Welsh.
+\newblock {mplot: An R package for graphical model stability and variable
+  selection procedures}.
+\newblock \emph{Journal of Statistical Software}, 83\penalty0 (9):\penalty0
+  1--28, 2018.
+
+\end{thebibliography}
