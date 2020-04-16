@@ -1,0 +1,132 @@
+---
+title: "Various technologies relating to (Google) Cloud"
+subtitle: "https://kevinwang09.github.io/"
+author: '[Kevin Y. X. Wang](https://kevinwang09.github.io/)'
+date: "`r paste0('2020 April 17, slides compiled on ', format(Sys.time(), '%Y %b %d'))`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/sydney-fonts.css", "assets/sydney.css"]
+    self_contained: false # if true, fonts will be stored locally
+    seal: true # show a title slide with YAML information
+    includes:
+      in_header: "assets/mathjax-equation-numbers.html"
+    nature:
+      beforeInit: ["assets/remark-zoom.js", "https://platform.twitter.com/widgets.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: '16:9' # alternatives '16:9' or '4:3' or others e.g. 13:9
+      navigation:
+        scroll: false # disable slide transitions by scrolling
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>`
+---
+```{r, echo = FALSE}
+knitr::knit_hooks$set(error = function(x, options) {
+  paste0("<pre style=\"color: red;\"><code>", x, "</code></pre>")
+})
+
+knitr::opts_chunk$set(echo = TRUE, fig.retina = 2)
+```
+
+
+---
+# Down the rabbit hole we go.
+
+.pull-left[
++ Jean asked me to organise a lecture on Shiny. After testing various ideas, I ended up with three apps
+
+  - Weather visualisation
+  
+  - Cats and dogs
+  
+  - COVID-19
+  
+1. Limitations of Shiny (computational)
+
+2. Google BigQuery
+
+**Apologies, this talk is more complains than being educational.**
+]
+
+.pull-right[
+<img src = "https://miro.medium.com/max/1000/1*xUVx8GVAl1AFgb9wp-PlyA.jpeg" height = 500> </img>
+]
+
+---
+
+# Cats and dogs
+
++ The app loads a pre-trained Keras model which can recognise common objects (particularly, cats and dogs) from a given picture.
+
++ The app keeps crashing and restarting. 
+
+```
+tensorflow/core/framework/allocator.cc:101] Allocation of 8589934592 exceeds 10% of system memory.
+```
+
++ When I replaced the first model (VGG19, 550MB) by a similar model (ResNet50, 98MB), the app works.
+
++ While I am not sure how Keras models are used in connection with `R` and `shiny`, this behaviour suggests: 
+
+  - There is an internal memory limit imposed by `shiny` onto TensorFlow/Keras, which is not imposed by RMarkdown during compilation
+  - IStrangely, increasing the memory of the (virtual) machine didn't seem to help with the error
+
++ **Lesson: Don't make your Shiny app crazily computational heavy**
+
+---
+
+# COVID-19 data from JHU
+
++ Data are available as CSV files here: https://github.com/CSSEGISandData/COVID-19, e.g. 
+
+| Province/State               | Country/Region | Lat      | Long     | 4/12/20 | 4/13/20 | 4/14/20 | 4/15/20 |
+|------------------------------|----------------|----------|----------|---------|---------|---------|---------|
+| Australian Capital Territory | Australia      | -35.4735 | 149.0124 | 103     | 102     | 103     | 103     |
+| New South Wales              | Australia      | -33.8688 | 151.2093 | 2857    | 2863    | 2870    | 2886    |
+| Northern Territory           | Australia      | -12.4634 | 130.8456 | 28      | 28      | 28      | 28      |
+| Queensland                   | Australia      | -28.0167 | 153.4    | 983     | 987     | 998     | 999     |
+| South Australia              | Australia      | -34.9285 | 138.6007 | 429     | 429     | 433     | 433     |
+| Tasmania                     | Australia      | -41.4545 | 145.9707 | 133     | 144     | 165     | 165     |
+| Victoria                     | Australia      | -37.8136 | 144.9631 | 1268    | 1281    | 1291    | 1299    |
+
+
++ But I have processed data in this format before, so to make this more interesting, I tried out BigQuery. 
+
+---
+
+# BigQuery and COVID-19
+
++ Google hosts a commercial database, BigQuery, and you can query the JHU COVID-19 data using SQL codes
+
+```
+SELECT country_region, confirmed
+FROM `bigquery-public-data.covid19_jhu_csse.summary`
+WHERE country_region IN ('Italy', 'Spain') AND date = '2020-04-02'
+```
+
++ While `R` has the `DBI` and `bigrquery` packages to make queries to BigQuery, making this query in `R` will fail, because there is no existing method for parsing "GEOGRAPHY" SQL variable into R. 
+
++ So I had to upidate the package myself: https://github.com/kevinwang09/bigrquery/tree/geography. 
+
++ **Lesson: API packages are great, until they are not longer maintained**
+
+---
+# COVID-19 confirmed cases per capita visualisation
+
+This seemingly easy task is not so easy if you rely purely on `R` code: 
+
++ Connection to multiple datasets and join the data are not always possible
++ You might need to manually process some of the geography variables, which can be cumbersome. See my [blog post](https://kevinwang09.github.io/post/joining-data-across-bigquery-data/) about this. 
+
++ My preferred way is to use Data Studio, but
+  - It doesn't resolve the issue of JHU changing their data format every 2 weeks
+  - Its plotting grammar is terrible compare to `ggplot2`
+---
+
+<iframe width="1200" height="600" src="https://datastudio.google.com/embed/reporting/3358c0f1-a068-47c6-9e8c-7b4d4873a843/page/MS0LB"></iframe>
+
+---

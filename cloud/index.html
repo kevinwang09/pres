@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Various technologies relating to (Google) Cloud</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Kevin Y. X. Wang" />
+    <script src="index_files/header-attrs-2.1/header-attrs.js"></script>
+    <link href="index_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } },
+      });
+    </script>
+    <style>
+    .mjx-mrow a {
+      color: black;
+      pointer-events: none;
+      cursor: default;
+    }
+    </style>
+    <link rel="stylesheet" href="assets/sydney-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="assets/sydney.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Various technologies relating to (Google) Cloud
+## <a href="https://kevinwang09.github.io/" class="uri">https://kevinwang09.github.io/</a>
+### <a href="https://kevinwang09.github.io/">Kevin Y. X. Wang</a>
+### 2020 April 17, slides compiled on 2020 Apr 16
+
+---
+
+
+
+
+---
+# Down the rabbit hole we go.
+
+.pull-left[
++ Jean asked me to organise a lecture on Shiny. After testing various ideas, I ended up with three apps
+
+  - Weather visualisation
+  
+  - Cats and dogs
+  
+  - COVID-19
+  
+1. Limitations of Shiny (computational)
+
+2. Google BigQuery
+
+**Apologies, this talk is more complains than being educational.**
+]
+
+.pull-right[
+&lt;img src = "https://miro.medium.com/max/1000/1*xUVx8GVAl1AFgb9wp-PlyA.jpeg" height = 500&gt; &lt;/img&gt;
+]
+
+---
+
+# Cats and dogs
+
++ The app loads a pre-trained Keras model which can recognise common objects (particularly, cats and dogs) from a given picture.
+
++ The app keeps crashing and restarting. 
+
+```
+tensorflow/core/framework/allocator.cc:101] Allocation of 8589934592 exceeds 10% of system memory.
+```
+
++ When I replaced the first model (VGG19, 550MB) by a similar model (ResNet50, 98MB), the app works.
+
++ While I am not sure how Keras models are used in connection with `R` and `shiny`, this behaviour suggests: 
+
+  - There is an internal memory limit imposed by `shiny` onto TensorFlow/Keras, which is not imposed by RMarkdown during compilation
+  - IStrangely, increasing the memory of the (virtual) machine didn't seem to help with the error
+
++ **Lesson: Don't make your Shiny app crazily computational heavy**
+
+---
+
+# COVID-19 data from JHU
+
++ Data are available as CSV files here: https://github.com/CSSEGISandData/COVID-19, e.g. 
+
+| Province/State               | Country/Region | Lat      | Long     | 4/12/20 | 4/13/20 | 4/14/20 | 4/15/20 |
+|------------------------------|----------------|----------|----------|---------|---------|---------|---------|
+| Australian Capital Territory | Australia      | -35.4735 | 149.0124 | 103     | 102     | 103     | 103     |
+| New South Wales              | Australia      | -33.8688 | 151.2093 | 2857    | 2863    | 2870    | 2886    |
+| Northern Territory           | Australia      | -12.4634 | 130.8456 | 28      | 28      | 28      | 28      |
+| Queensland                   | Australia      | -28.0167 | 153.4    | 983     | 987     | 998     | 999     |
+| South Australia              | Australia      | -34.9285 | 138.6007 | 429     | 429     | 433     | 433     |
+| Tasmania                     | Australia      | -41.4545 | 145.9707 | 133     | 144     | 165     | 165     |
+| Victoria                     | Australia      | -37.8136 | 144.9631 | 1268    | 1281    | 1291    | 1299    |
+
+
++ But I have processed data in this format before, so to make this more interesting, I tried out BigQuery. 
+
+---
+
+# BigQuery and COVID-19
+
++ Google hosts a commercial database, BigQuery, and you can query the JHU COVID-19 data using SQL codes
+
+```
+SELECT country_region, confirmed
+FROM `bigquery-public-data.covid19_jhu_csse.summary`
+WHERE country_region IN ('Italy', 'Spain') AND date = '2020-04-02'
+```
+
++ While `R` has the `DBI` and `bigrquery` packages to make queries to BigQuery, making this query in `R` will fail, because there is no existing method for parsing "GEOGRAPHY" SQL variable into R. 
+
++ So I had to upidate the package myself: https://github.com/kevinwang09/bigrquery/tree/geography. 
+
++ **Lesson: API packages are great, until they are not longer maintained**
+
+---
+# COVID-19 confirmed cases per capita visualisation
+
+This seemingly easy task is not so easy if you rely purely on `R` code: 
+
++ Connection to multiple datasets and join the data are not always possible
++ You might need to manually process some of the geography variables, which can be cumbersome. See my [blog post](https://kevinwang09.github.io/post/joining-data-across-bigquery-data/) about this. 
+
++ My preferred way is to use Data Studio, but
+  - It doesn't resolve the issue of JHU changing their data format every 2 weeks
+  - Its plotting grammar is terrible compare to `ggplot2`
+---
+
+&lt;iframe width="1200" height="600" src="https://datastudio.google.com/embed/reporting/3358c0f1-a068-47c6-9e8c-7b4d4873a843/page/MS0LB"&gt;&lt;/iframe&gt;
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="assets/remark-zoom.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"ratio": "16:9",
+"navigation": {
+"scroll": false
+},
+"slideNumberFormat": "<div class=\"progress-bar-container\">   <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">   </div> </div>`"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  /* Replace <script> tags in slides area to make them executable
+   *
+   * Runs after post-processing of markdown source into slides and replaces only
+   * <script>s on the last slide of continued slides using the .has-continuation
+   * class added by xaringan. Finally, any <script>s in the slides area that
+   * aren't executed are commented out.
+   */
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container:not(.has-continuation) script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+  var scriptsNotExecuted = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container.has-continuation script'
+  );
+  if (!scriptsNotExecuted.length) return;
+  for (var i = 0; i < scriptsNotExecuted.length; i++) {
+    var comment = document.createComment(scriptsNotExecuted[i].outerHTML)
+    scriptsNotExecuted[i].parentElement.replaceChild(comment, scriptsNotExecuted[i])
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
