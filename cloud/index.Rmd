@@ -1,6 +1,6 @@
 ---
-title: "Various technologies relating to (Google) Cloud"
-subtitle: "https://kevinwang09.github.io/"
+title: "Using various APIs relating to Google Cloud"
+subtitle: "https://kevinwang09.github.io/pres/cloud"
 author: '[Kevin Y. X. Wang](https://kevinwang09.github.io/)'
 date: "`r paste0('2020 April 17, slides compiled on ', format(Sys.time(), '%Y %b %d'))`"
 output:
@@ -32,24 +32,17 @@ knitr::knit_hooks$set(error = function(x, options) {
 knitr::opts_chunk$set(echo = TRUE, fig.retina = 2)
 ```
 
-
----
 # Down the rabbit hole we go.
 
 .pull-left[
-+ Jean asked me to organise a lecture on Shiny. After testing various ideas, I ended up with three apps
 
-  - Weather visualisation
-  
-  - Cats and dogs
-  
-  - COVID-19
-  
-1. Limitations of Shiny (computational)
++ Jean asked me to deliver a lecture on Shiny. Somehow I ended up with three apps and four blog posts since that. 
 
-2. Google BigQuery
++ The lecture was still a lecture with all my old tricks, but I picked up more ideas/technologies while I was preparing the materials.
 
-**Apologies, this talk is more complains than being educational.**
+1. A limitation of Shiny/Docker
+2. Google's Natural Language Processing
+3. ~~The gooa and bad of using API packages: example with `bigrquery`~~
 ]
 
 .pull-right[
@@ -58,75 +51,130 @@ knitr::opts_chunk$set(echo = TRUE, fig.retina = 2)
 
 ---
 
-# Cats and dogs
+# Shiny/Docker memory issue when using with Keras/TensorFlow
 
-+ The app loads a pre-trained Keras model which can recognise common objects (particularly, cats and dogs) from a given picture.
++ This Shiny app loads a pre-trained Keras model which can recognise common objects (particularly, cats and dogs) from a given picture.
 
-+ The app keeps crashing and restarting. 
++ On Google Cloud (the latter use Docker), the app keeps crashing and restarting. The log on `shinyapp.io` makes me think that it also uses Docker. 
 
 ```
 tensorflow/core/framework/allocator.cc:101] Allocation of 8589934592 exceeds 10% of system memory.
 ```
 
++ I am not sure how Keras models are used in connection with `R` and `shiny`, this behaviour suggests: 
+
+  - Memory limit imposed by `shiny`/Docker onto TensorFlow/Keras is **not** imposed by RMarkdown during compilation
+  - Strangely, increasing the memory of the (virtual) machine didn't seem to help with the error
+
 + When I replaced the first model (VGG19, 550MB) by a similar model (ResNet50, 98MB), the app works.
 
-+ While I am not sure how Keras models are used in connection with `R` and `shiny`, this behaviour suggests: 
++ **Lesson: Don't make your Shiny app crazily computationally heavy**
 
-  - There is an internal memory limit imposed by `shiny` onto TensorFlow/Keras, which is not imposed by RMarkdown during compilation
-  - IStrangely, increasing the memory of the (virtual) machine didn't seem to help with the error
+---
+# Google's Natural Language Processing API
 
-+ **Lesson: Don't make your Shiny app crazily computational heavy**
++ I hypothesised that most media outlets were initially treating the COVID-19 outbreak with more of a casual attitude.
+
++ If this hypothesis is true, it will be good to know what event(s) triggered a sudden change of tone in media coverage in each country. 
+
++ Most deep learning algorithms are not easy to build 
+
+  - data availability
+  - computational resources
+
++ Pre-trained models are not easy to run on laptops
+
++ Solution: use Twitter's API to pull tweets relating to COVID-19 and use Google's Natural Language Processing API to process this data. 
+---
+
+# Summary of findings
+
++ Twitter's free tier API does not allow me to scrap the entire Twitterverse. `rtweet` only allows about 3000 most recent Tweets from a given user. 
+
++ Refined hypothesis: certain national leader are more articulated and well-spoken than others (*cough*). 
+
++ Google's NLP sentiment analysis engine evaluates a text and outputs two scores: 
+  - `Sentiment` (-1 to 1) on how positive the language is 
+  - `Magnitude` (0 to Inf) on how strong the language is
+
++ The results are exported to Google Cloud Storage and sent to Data Studio for visualisation
+
++ Ongoing work
+---
+
+<iframe width="1200" height="600" src="https://datastudio.google.com/embed/reporting/bc12e581-b5f5-492d-96c5-3145c53aee38/page/5CIMB"></iframe>
 
 ---
 
-# COVID-19 data from JHU
+# Conclusion
 
-+ Data are available as CSV files here: https://github.com/CSSEGISandData/COVID-19, e.g. 
-
-| Province/State               | Country/Region | Lat      | Long     | 4/12/20 | 4/13/20 | 4/14/20 | 4/15/20 |
-|------------------------------|----------------|----------|----------|---------|---------|---------|---------|
-| Australian Capital Territory | Australia      | -35.4735 | 149.0124 | 103     | 102     | 103     | 103     |
-| New South Wales              | Australia      | -33.8688 | 151.2093 | 2857    | 2863    | 2870    | 2886    |
-| Northern Territory           | Australia      | -12.4634 | 130.8456 | 28      | 28      | 28      | 28      |
-| Queensland                   | Australia      | -28.0167 | 153.4    | 983     | 987     | 998     | 999     |
-| South Australia              | Australia      | -34.9285 | 138.6007 | 429     | 429     | 433     | 433     |
-| Tasmania                     | Australia      | -41.4545 | 145.9707 | 133     | 144     | 165     | 165     |
-| Victoria                     | Australia      | -37.8136 | 144.9631 | 1268    | 1281    | 1291    | 1299    |
-
-
-+ But I have processed data in this format before, so to make this more interesting, I tried out BigQuery. 
-
----
-
-# BigQuery and COVID-19
-
-+ Google hosts a commercial database, BigQuery, and you can query the JHU COVID-19 data using SQL codes
-
-```
-SELECT country_region, confirmed
-FROM `bigquery-public-data.covid19_jhu_csse.summary`
-WHERE country_region IN ('Italy', 'Spain') AND date = '2020-04-02'
-```
-
-+ While `R` has the `DBI` and `bigrquery` packages to make queries to BigQuery, making this query in `R` will fail, because there is no existing method for parsing "GEOGRAPHY" SQL variable into R. 
-
-+ So I had to upidate the package myself: https://github.com/kevinwang09/bigrquery/tree/geography. 
-
-+ **Lesson: API packages are great, until they are not longer maintained**
++ I used to think using APIs is a bit like cheating, but 
+  
+  - If my aim is to answer an applied problem rather than become a deep learning expert overnight, then why not use an API?
+  - Become a deep learning expert can come later, using API is a legitimate way to get a basic understanding of that investment of time is worth it. 
+  - Chances are, you won't build a better NLP model than Google. 
+  
++ Data Studio (similarly, Tableau and Microsoft Power BI) are softwares that offer something extra over R/Shiny:
+  
+  - Connection to databases is fast
+  - Easily shared on a Google account
+  - faster to construct than Shiny for basic visualisations
+  
++ But
+  - Can't handle complex modelling and computations without adding `R` as backend
+  - The plotting grammar is **infinitely inferior** compare to `ggplot2`
 
 ---
-# COVID-19 confirmed cases per capita visualisation
-
-This seemingly easy task is not so easy if you rely purely on `R` code: 
-
-+ Connection to multiple datasets and join the data are not always possible
-+ You might need to manually process some of the geography variables, which can be cumbersome. See my [blog post](https://kevinwang09.github.io/post/joining-data-across-bigquery-data/) about this. 
-
-+ My preferred way is to use Data Studio, but
-  - It doesn't resolve the issue of JHU changing their data format every 2 weeks
-  - Its plotting grammar is terrible compare to `ggplot2`
----
-
 <iframe width="1200" height="600" src="https://datastudio.google.com/embed/reporting/3358c0f1-a068-47c6-9e8c-7b4d4873a843/page/MS0LB"></iframe>
-
 ---
+<!-- # COVID-19 data from JHU -->
+
+<!-- + Data are available as CSV files here: https://github.com/CSSEGISandData/COVID-19, e.g.  -->
+
+<!-- | Province/State               | Country/Region | Lat      | Long     | 4/12/20 | 4/13/20 | 4/14/20 | 4/15/20 | -->
+<!-- |------------------------------|----------------|----------|----------|---------|---------|---------|---------| -->
+<!-- | Australian Capital Territory | Australia      | -35.4735 | 149.0124 | 103     | 102     | 103     | 103     | -->
+<!-- | New South Wales              | Australia      | -33.8688 | 151.2093 | 2857    | 2863    | 2870    | 2886    | -->
+<!-- | Northern Territory           | Australia      | -12.4634 | 130.8456 | 28      | 28      | 28      | 28      | -->
+<!-- | Queensland                   | Australia      | -28.0167 | 153.4    | 983     | 987     | 998     | 999     | -->
+<!-- | South Australia              | Australia      | -34.9285 | 138.6007 | 429     | 429     | 433     | 433     | -->
+<!-- | Tasmania                     | Australia      | -41.4545 | 145.9707 | 133     | 144     | 165     | 165     | -->
+<!-- | Victoria                     | Australia      | -37.8136 | 144.9631 | 1268    | 1281    | 1291    | 1299    | -->
+
+
+<!-- + But I have processed data in this format before, so to make this more interesting, I tried out BigQuery.  -->
+
+<!-- --- -->
+
+<!-- # BigQuery and COVID-19 -->
+
+<!-- + Google hosts a commercial database, BigQuery, and you can query the JHU COVID-19 data using SQL codes -->
+
+<!-- ``` -->
+<!-- SELECT country_region, confirmed -->
+<!-- FROM `bigquery-public-data.covid19_jhu_csse.summary` -->
+<!-- WHERE country_region IN ('Italy', 'Spain') AND date = '2020-04-02' -->
+<!-- ``` -->
+
+<!-- + While `R` has the `DBI` and `bigrquery` packages to make queries to BigQuery, making this query in `R` will fail, because there is no existing method for parsing "GEOGRAPHY" SQL variable into R.  -->
+
+<!-- + So I had to upidate the package myself: https://github.com/kevinwang09/bigrquery/tree/geography.  -->
+
+<!-- + **Lesson: API packages are great, until they are not longer maintained** -->
+
+<!-- --- -->
+<!-- # COVID-19 confirmed cases per capita visualisation -->
+
+<!-- This seemingly easy task is not so easy if you rely purely on `R` code:  -->
+
+<!-- + Connection to multiple datasets and join the data are not always possible -->
+<!-- + You might need to manually process some of the geography variables, which can be cumbersome. See my [blog post](https://kevinwang09.github.io/post/joining-data-across-bigquery-data/) about this.  -->
+
+<!-- + My preferred way is to use Data Studio, but -->
+<!--   - It doesn't resolve the issue of JHU changing their data format every 2 weeks -->
+<!--   - Its plotting grammar is terrible compare to `ggplot2` -->
+<!-- --- -->
+
+<!-- <iframe width="1200" height="600" src="https://datastudio.google.com/embed/reporting/3358c0f1-a068-47c6-9e8c-7b4d4873a843/page/MS0LB"></iframe> -->
+
+<!-- --- -->
