@@ -53,9 +53,9 @@ knitr::opts_chunk$set(echo = TRUE, fig.retina = 2)
 
 # Shiny/Docker memory issue when using with Keras/TensorFlow
 
-+ This Shiny app loads a pre-trained Keras model which can recognise common objects (particularly, cats and dogs) from a given picture.
++ This [Shiny app](http://104.198.228.250/catdog) loads a pre-trained Keras model which can recognise common objects (particularly, cats and dogs) from a given URL.
 
-+ On Google Cloud (the latter use Docker), the app keeps crashing and restarting. The log on `shinyapp.io` makes me think that it also uses Docker. 
++ On Google Cloud (the latter use Docker), the first version of the app keeps crashing and restarting. The log on `shinyapp.io` makes me think that it also uses Docker. 
 
 ```
 tensorflow/core/framework/allocator.cc:101] Allocation of 8589934592 exceeds 10% of system memory.
